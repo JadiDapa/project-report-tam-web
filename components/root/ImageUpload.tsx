@@ -13,7 +13,7 @@ import Image from "next/image";
 
 interface ImageUploaderProps {
   value?: string | File;
-  onChange?: (file: File) => void;
+  onChange?: (file: File | null) => void;
 }
 
 export default function ImageUploader({ value, onChange }: ImageUploaderProps) {
@@ -70,7 +70,7 @@ export default function ImageUploader({ value, onChange }: ImageUploaderProps) {
   const removeFile = () => {
     setFile(null);
     setPreview("");
-    onChange?.(null as any); // if you want to clear from parent too
+    onChange?.(null); // if you want to clear from parent too
   };
 
   return (

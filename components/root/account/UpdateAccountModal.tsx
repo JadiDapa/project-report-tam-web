@@ -20,10 +20,9 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Eye, EyeOff, Link, Plus } from "lucide-react";
+import { Link, Plus } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ClipLoader } from "react-spinners";
 import {
@@ -35,23 +34,13 @@ import {
 } from "@/components/ui/select";
 import { createAccount } from "@/lib/networks/account";
 import { AccountType, CreateAccountType } from "@/lib/types/account";
-import { useSignUp } from "@clerk/nextjs";
 import { getAllFeatures } from "@/lib/networks/feature";
 
-const accountSchema = z
-  .object({
-    fullname: z.string().min(3, "Full Name must be at least 3 characters"),
-    email: z.string().min(10, "Description must be at least 10 characters"),
-    role: z.string(),
-    password: z.string().min(6, "Password must be at least 6 characters"),
-    confirmPassword: z
-      .string()
-      .min(6, "Password must be at least 6 characters"),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"], // put error on confirmPassword field
-  });
+const accountSchema = z.object({
+  fullname: z.string().min(3, "Full Name must be at least 3 characters"),
+  email: z.string().min(10, "Description must be at least 10 characters"),
+  roleId: z.string(),
+});
 
 interface UpdateAccountModalProps {
   children: React.ReactNode;
@@ -63,18 +52,15 @@ export default function UpdateAccountModal({
   account,
 }: UpdateAccountModalProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
 
   const queryClient = useQueryClient();
-  const router = useRouter();
-  const { signUp } = useSignUp();
 
   const { data: features } = useQuery({
     queryFn: () => getAllFeatures(),
     queryKey: ["features"],
   });
 
-  const { mutateAsync: onCreateAccount, isPending } = useMutation({
+  const { mutateAsync: onUpdateAccount, isPending } = useMutation({
     mutationFn: (values: CreateAccountType) => createAccount(values),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["accounts"] });
@@ -88,40 +74,14 @@ export default function UpdateAccountModal({
   const form = useForm<z.infer<typeof accountSchema>>({
     resolver: zodResolver(accountSchema),
     values: {
-      fullname: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
-      role: "",
+      fullname: account.fullname,
+      email: account.email,
+      roleId: "",
     },
   });
 
   async function onSubmit(values: z.infer<typeof accountSchema>) {
-    try {
-      const signUpAttempt = await signUp!.create({
-        emailAddress: values.email,
-        password: values.password,
-      });
-
-      if (signUpAttempt.status !== "complete") {
-        toast.error("Something went wrong!");
-        return;
-      }
-
-      await onCreateAccount({
-        fullname: values.fullname,
-        email: values.email,
-        roleId: Number(values.role),
-        image: "",
-      });
-
-      toast.success("Account successfully created!");
-      setIsDialogOpen(false);
-      router.push("/");
-    } catch (error) {
-      console.error(error);
-      toast.error("Something went wrong!");
-    }
+    onUpdateAccount({ ...values, roleId: Number(values.roleId) });
   }
 
   return (
@@ -168,7 +128,7 @@ export default function UpdateAccountModal({
 
                 <FormField
                   control={form.control}
-                  name="role"
+                  name="roleId"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Role</FormLabel>
@@ -200,72 +160,6 @@ export default function UpdateAccountModal({
                         </SelectContent>
                       </Select>
                       <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Password</FormLabel>
-                      <FormControl className="relative">
-                        <div className="relative">
-                          <Input
-                            type={showPassword ? "text" : "password"}
-                            className="w-full"
-                            {...field}
-                          />
-                          {showPassword ? (
-                            <Eye
-                              strokeWidth={1.4}
-                              className="absolute top-2 right-2 size-5"
-                              onClick={() => setShowPassword(!showPassword)}
-                            />
-                          ) : (
-                            <EyeOff
-                              strokeWidth={1.4}
-                              className="absolute top-2 right-2 size-5"
-                              onClick={() => setShowPassword(!showPassword)}
-                            />
-                          )}
-                        </div>
-                      </FormControl>
-                      <FormMessage className="text-start" />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="confirmPassword"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Confirm Password</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Input
-                            type={showPassword ? "text" : "password"}
-                            className="w-full"
-                            {...field}
-                          />
-                          {showPassword ? (
-                            <Eye
-                              strokeWidth={1.4}
-                              className="absolute top-2 right-2 size-5"
-                              onClick={() => setShowPassword(!showPassword)}
-                            />
-                          ) : (
-                            <EyeOff
-                              strokeWidth={1.4}
-                              className="absolute top-2 right-2 size-5"
-                              onClick={() => setShowPassword(!showPassword)}
-                            />
-                          )}
-                        </div>
-                      </FormControl>
-                      <FormMessage className="text-start" />
                     </FormItem>
                   )}
                 />

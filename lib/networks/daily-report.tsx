@@ -1,6 +1,7 @@
 import { axiosInstance } from "./axiosInstance";
 import { DailyReportType, CreateDailyReportType } from "../types/daily-report";
 
+// Get all daily reports
 export async function getAllDailyReports() {
   const { data } = await axiosInstance.get<{ data: DailyReportType[] }>(
     "/daily-reports",
@@ -8,20 +9,23 @@ export async function getAllDailyReports() {
   return data.data;
 }
 
+// Get daily reports by accountId
 export async function getDailyReportsByAccountId(accountId: string) {
   const { data } = await axiosInstance.get<{ data: DailyReportType[] }>(
-    "/daily-reports/account/" + accountId,
+    `/daily-reports/account/${accountId}`,
   );
   return data.data;
 }
 
+// Get single daily report
 export async function getDailyReportById(id: string) {
   const { data } = await axiosInstance.get<{ data: DailyReportType }>(
-    "/daily-reports/" + id,
+    `/daily-reports/${id}`,
   );
   return data.data;
 }
 
+// Get report evidence
 export async function getDailyReportEvidences(date: string) {
   const { data } = await axiosInstance.get<{ data: string }>(
     `/daily-reports/generate-report/${date}`,
@@ -29,18 +33,16 @@ export async function getDailyReportEvidences(date: string) {
   return data.data;
 }
 
+// Create a daily report
 export async function createDailyReport(values: CreateDailyReportType) {
   const formData = new FormData();
-
   formData.append("title", values.title);
   formData.append("description", values.description || "");
-  formData.append("accountId", values.accountId as string);
+  formData.append("accountId", String(values.accountId));
 
-  if (values.DailyReportEvidences && values.DailyReportEvidences.length > 0) {
-    values.DailyReportEvidences.forEach((evidence: File) => {
-      formData.append("DailyReportEvidences", evidence);
-    });
-  }
+  (values.DailyReportEvidences as unknown as File[]).forEach((file) => {
+    formData.append("DailyReportEvidences", file);
+  });
 
   try {
     const { data } = await axiosInstance.post("/daily-reports", formData, {
@@ -48,7 +50,6 @@ export async function createDailyReport(values: CreateDailyReportType) {
         "Content-Type": "multipart/form-data",
       },
     });
-
     return data.data;
   } catch (error) {
     console.error("Upload error:", error);
@@ -56,40 +57,23 @@ export async function createDailyReport(values: CreateDailyReportType) {
   }
 }
 
+// Update a daily report
 export async function updateDailyReport(
   id: string,
   values: CreateDailyReportType,
 ) {
   const formData = new FormData();
-
   formData.append("title", values.title);
   formData.append("description", values.description || "");
-  formData.append("accountId", values.accountId as string);
+  formData.append("accountId", String(values.accountId));
 
-  if (values.DailyReportEvidences && values.DailyReportEvidences.length > 0) {
-    await Promise.all(
-      values.DailyReportEvidences.map(async (evidence: any, index: number) => {
-        const fileUri = evidence.image;
-        const fileInfo = await FileSystem.getInfoAsync(fileUri);
-
-        if (fileInfo.exists) {
-          const fileBlob = {
-            uri: fileUri,
-            type: evidence.mimeType || "image/jpeg",
-            name: evidence.fileName || `file_${index}.jpg`,
-          };
-
-          formData.append("DailyReportEvidences", fileBlob as any);
-        } else {
-          console.warn(`File not found: ${fileUri}`);
-        }
-      }),
-    );
-  }
+  (values.DailyReportEvidences as unknown as File[]).forEach((file) => {
+    formData.append("DailyReportEvidences", file);
+  });
 
   try {
     const { data } = await axiosInstance.post(
-      "/daily-reports/" + id,
+      `/daily-reports/${id}`,
       formData,
       {
         headers: {
@@ -97,15 +81,15 @@ export async function updateDailyReport(
         },
       },
     );
-
     return data.data;
   } catch (error) {
-    console.error("Upload error:", error);
+    console.error("Update error:", error);
     throw error;
   }
 }
 
+// Delete a daily report
 export async function deleteDailyReport(id: string) {
-  const { data } = await axiosInstance.delete("/daily-reports/" + id);
+  const { data } = await axiosInstance.delete(`/daily-reports/${id}`);
   return data.data;
 }

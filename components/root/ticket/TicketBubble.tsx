@@ -1,5 +1,4 @@
 import React from "react";
-import { Check, CheckCheck } from "lucide-react";
 import { TicketMessageType } from "@/lib/types/ticket-message";
 import { AccountType } from "@/lib/types/account";
 import Image from "next/image";
