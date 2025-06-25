@@ -67,6 +67,7 @@ export default function DailyReportDetailModal({
                         alt={evidence.image}
                         fill
                         className="object-cover object-center"
+                        unoptimized
                       />
                     </div>
                   ))}

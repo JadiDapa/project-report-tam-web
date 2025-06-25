@@ -9,7 +9,7 @@ export default function Hero() {
       <div className="absolute top-20 right-20 h-4 w-4 rounded-full bg-blue-500"></div>
       <div className="absolute right-40 bottom-40 h-6 w-6 rounded-full bg-blue-600"></div>
 
-      <div className="container mx-auto px-24 py-20">
+      <div className="container mx-auto px-24 py-14">
         <div className="grid items-center gap-12 lg:grid-cols-2">
           {/* Left side - Content */}
           <div className="space-y-8">

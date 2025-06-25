@@ -99,13 +99,14 @@ export default function EvidenceDetailModal({
                   alt="Logo"
                   fill
                   className="object-contain object-center"
+                  unoptimized
                 />
               </div>
             ) : (
               <div>
                 <ImageUploader
                   value={uploadedEvidence}
-                  onChange={setUploadedEvidence}
+                  onChange={(file) => setUploadedEvidence(file ?? undefined)}
                 />
                 <Button onClick={onSubmit} className="mt-4 w-full">
                   Upload Image

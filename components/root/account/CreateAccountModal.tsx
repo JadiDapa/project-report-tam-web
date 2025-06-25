@@ -23,9 +23,7 @@ import { Button } from "@/components/ui/button";
 import { Eye, EyeOff, Link, Plus } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ClipLoader } from "react-spinners";
 import {
   Select,
   SelectContent,
@@ -35,22 +33,27 @@ import {
 } from "@/components/ui/select";
 import { createAccount } from "@/lib/networks/account";
 import { CreateAccountType } from "@/lib/types/account";
-import { useSignUp } from "@clerk/nextjs";
-import { getAllFeatures } from "@/lib/networks/feature";
+import { getAllRoles } from "@/lib/networks/role";
+
+const passwordRegex =
+  /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&^()\-_=+[\]{};:"|,.<>\/?]).{8,}$/;
 
 const accountSchema = z
   .object({
     fullname: z.string().min(3, "Full Name must be at least 3 characters"),
-    email: z.string().min(10, "Description must be at least 10 characters"),
+    email: z.string().email("Invalid email format"),
     role: z.string(),
-    password: z.string().min(6, "Password must be at least 6 characters"),
-    confirmPassword: z
+    password: z
       .string()
-      .min(6, "Password must be at least 6 characters"),
+      .regex(
+        passwordRegex,
+        "Password must be at least 8 characters and include at least one letter, one number, and one special character",
+      ),
+    confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
-    path: ["confirmPassword"], // put error on confirmPassword field
+    path: ["confirmPassword"],
   });
 
 interface CreateAccountModalProps {
@@ -64,12 +67,10 @@ export default function CreateAccountModal({
   const [showPassword, setShowPassword] = useState(false);
 
   const queryClient = useQueryClient();
-  const router = useRouter();
-  const { signUp } = useSignUp();
 
-  const { data: features } = useQuery({
-    queryFn: () => getAllFeatures(),
-    queryKey: ["features"],
+  const { data: roles } = useQuery({
+    queryFn: () => getAllRoles(),
+    queryKey: ["roles"],
   });
 
   const { mutateAsync: onCreateAccount, isPending } = useMutation({
@@ -96,29 +97,18 @@ export default function CreateAccountModal({
 
   async function onSubmit(values: z.infer<typeof accountSchema>) {
     try {
-      const signUpAttempt = await signUp!.create({
-        emailAddress: values.email,
-        password: values.password,
-      });
-
-      if (signUpAttempt.status !== "complete") {
-        toast.error("Something went wrong!");
-        return;
-      }
-
       await onCreateAccount({
         fullname: values.fullname,
         email: values.email,
+        password: values.password,
         roleId: Number(values.role),
-        image: "",
       });
 
+      queryClient.invalidateQueries({ queryKey: ["accounts"] });
       toast.success("Account successfully created!");
-      setIsDialogOpen(false);
-      router.push("/");
-    } catch (error) {
-      console.error(error);
-      toast.error("Something went wrong!");
+    } catch (err) {
+      console.error("Account creation failed", err);
+      toast.error("Something went wrong creating the account data!");
     }
   }
 
@@ -180,7 +170,7 @@ export default function CreateAccountModal({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {features?.map((account) => (
+                          {roles?.map((account) => (
                             <SelectItem
                               key={account.id}
                               value={account.id.toString()}
@@ -274,20 +264,7 @@ export default function CreateAccountModal({
                 className="flex w-full items-center gap-3"
                 type="submit"
               >
-                {isPending ? (
-                  <>
-                    Submitting
-                    <ClipLoader
-                      color={"#fff"}
-                      loading={isPending}
-                      size={150}
-                      aria-label="Loading Spinner"
-                      data-testid="loader"
-                    />
-                  </>
-                ) : (
-                  "Submit"
-                )}
+                {isPending ? "Submitting..." : "Submit"}
               </Button>
             </form>
           </Form>

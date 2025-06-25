@@ -190,6 +190,7 @@ export default function ProjectDetail() {
                     alt={evidence.description as string}
                     fill
                     className="object-contain object-center"
+                    unoptimized
                   />
                 </div>
                 <div className="flex w-full flex-col justify-between">

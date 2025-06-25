@@ -10,6 +10,7 @@ export interface CreateAccountType {
   roleId: number;
   image?: string;
   phoneNumber?: string;
+  password?: string;
 }
 
 export interface AccountType extends CreateAccountType {

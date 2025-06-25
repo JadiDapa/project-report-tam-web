@@ -115,7 +115,10 @@ export default function TicketDetail() {
     try {
       if (!statusChanged && !handlerChanged) return;
 
-      await updateTicketMutation({ handler: handlerId, status });
+      await updateTicketMutation({
+        handler: handlerId !== 0 ? handlerId : undefined,
+        status: status ? status : undefined,
+      });
 
       const messages: CreateTicketMessageType[] = [];
 

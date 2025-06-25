@@ -1,11 +1,22 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
+import { useAccount } from "@/providers/AccountProvider";
+import Image from "next/image";
 import Link from "next/link";
 
 export default function Navbar() {
+  const { account } = useAccount();
+
   return (
-    <header className="flex items-center justify-between bg-white px-24 py-4">
-      <div className="flex items-center space-x-2">
-        <p className="text-primary text-xl font-semibold">TAM / INTEGRA</p>
+    <header className="flex items-center justify-between from-blue-50 px-24 py-4 shadow-md">
+      <div className="relative h-14 w-24">
+        <Image
+          src="/images/logo.png"
+          alt="logo"
+          fill
+          className="object-contain object-center"
+        />
       </div>
 
       <nav className="hidden items-center space-x-8 md:flex">
@@ -29,9 +40,18 @@ export default function Navbar() {
         </Link>
       </nav>
 
-      <Button className="rounded-full bg-gray-900 px-6 py-2 text-white hover:bg-gray-800">
-        Sign In
-      </Button>
+      {account ? (
+        <Link
+          href={"/dashboard"}
+          className="rounded-full bg-gray-900 px-6 py-2 text-white hover:bg-gray-800"
+        >
+          Dashboard
+        </Link>
+      ) : (
+        <Button className="rounded-full bg-gray-900 px-6 py-2 text-white hover:bg-gray-800">
+          Sign In
+        </Button>
+      )}
     </header>
   );
 }

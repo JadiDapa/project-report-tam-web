@@ -9,6 +9,7 @@ import { useClerk } from "@clerk/nextjs";
 import {
   ClipboardList,
   House,
+  Image,
   LogOut,
   Mailbox,
   Ticket,
@@ -48,6 +49,12 @@ const userLink = [
     name: "Tickets",
     url: "/tickets",
     Icon: Ticket,
+    public: true,
+  },
+  {
+    name: "Evidence Alteration",
+    url: "/evidence-alteration",
+    Icon: Image,
     public: true,
   },
 ];

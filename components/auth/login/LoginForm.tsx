@@ -81,7 +81,7 @@ export default function LoginForm() {
                 />
                 <FormControl>
                   <Input
-                    className="border-primary h-10 w-full border-2 ps-12 lg:h-12"
+                    className="border-primary h-10 w-full rounded-lg border-2 ps-12 lg:h-12"
                     placeholder="Email"
                     {...field}
                   />
@@ -102,13 +102,13 @@ export default function LoginForm() {
                 />
                 <div
                   onClick={() => setIsVisible(!isVisible)}
-                  className="absolute top-1 right-3 text-slate-800"
+                  className="absolute top-1/2 right-3 -translate-y-1/2"
                 >
                   {isVisible ? <Eye size={24} /> : <EyeClosed size={24} />}
                 </div>
                 <FormControl>
                   <Input
-                    className="border-primary h-10 w-full border-2 ps-12 lg:h-12"
+                    className="border-primary h-10 w-full rounded-lg border-2 ps-12 lg:h-12"
                     placeholder="Password"
                     type={isVisible ? "text" : "password"}
                     {...field}

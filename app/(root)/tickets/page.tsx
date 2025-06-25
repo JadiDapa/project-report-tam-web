@@ -1,21 +1,36 @@
 "use client";
 
-import { Plus } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import Link from "next/link";
-import LayoutSwitch from "@/components/root/LayoutSwitch";
 import DataTable from "@/components/root/DataTable";
 import ExcelExport from "@/components/root/ExcelExport";
 import SearchDataTable from "@/components/root/SearchDataTable";
 import { getAllTickets } from "@/lib/networks/ticket";
 import { ticketColumn } from "@/lib/columns/ticket";
 import { format } from "date-fns";
+import { useAccount } from "@/providers/AccountProvider";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function TicketDashboard() {
+  const { account } = useAccount();
+  const router = useRouter();
+
   const { data: tickets } = useQuery({
     queryFn: getAllTickets,
     queryKey: ["tickets"],
   });
+
+  useEffect(() => {
+    if (!account) return;
+    console.log(account);
+    const isTicketManager = account?.Role?.Features?.some(
+      (feature) => feature.name === "Manage Ticket",
+    );
+
+    if (!isTicketManager) {
+      router.replace("/");
+    }
+  }, [account, router]);
 
   const excelData = tickets?.map((account, i) => ({
     No: i + 1,
@@ -39,17 +54,10 @@ export default function TicketDashboard() {
             </p>
           </div>
           <div className="flex items-center gap-4 lg:gap-6">
-            <LayoutSwitch />
             <ExcelExport
               data={excelData ?? []}
               filename={`tam-tickets-${format(new Date(), "dd-MMMM-yyyy")}.xlsx`}
             />
-
-            <Link href="/activities/create">
-              <div className="bg-primary text-secondary grid size-10 place-items-center gap-4 rounded-md text-lg shadow-sm">
-                <Plus size={24} />
-              </div>
-            </Link>
           </div>
         </div>
 
