@@ -34,8 +34,10 @@ export default function ProjectDetail() {
   if (!task) return null;
 
   const taskProgress =
-    (task?.TaskEvidences.filter((evidence) => evidence.image).length /
-      task?.quantity) *
+    (task?.TaskEvidences.filter(
+      (evidence) => evidence.TaskEvidenceImages.length > 0,
+    ).length /
+      (task.quantity ?? 1)) *
     100;
 
   const chartData = [
@@ -167,8 +169,12 @@ export default function ProjectDetail() {
             <p className="font-semibold">Task Items</p>
             <p className="text-lg font-medium">
               {taskProgress}% (
-              {task.TaskEvidences.filter((e) => e.image).length} /{" "}
-              {task.quantity})
+              {
+                task.TaskEvidences.filter(
+                  (e) => e.TaskEvidenceImages.length > 0,
+                ).length
+              }{" "}
+              / {task.quantity})
             </p>
           </div>
         </div>
@@ -184,8 +190,9 @@ export default function ProjectDetail() {
                 <div className="relative aspect-square w-full border">
                   <Image
                     src={
-                      (evidence.image as string) ||
-                      "https://static.vecteezy.com/system/resources/thumbnails/016/808/173/small_2x/camera-not-allowed-no-photography-image-not-available-concept-icon-in-line-style-design-isolated-on-white-background-editable-stroke-vector.jpg"
+                      evidence.TaskEvidenceImages.length > 0
+                        ? (evidence.TaskEvidenceImages[0].image as string)
+                        : "https://static.vecteezy.com/system/resources/thumbnails/016/808/173/small_2x/camera-not-allowed-no-photography-image-not-available-concept-icon-in-line-style-design-isolated-on-white-background-editable-stroke-vector.jpg"
                     }
                     alt={evidence.description as string}
                     fill
@@ -197,9 +204,9 @@ export default function ProjectDetail() {
                   <p className="text-primary-500 line-clamp-2 font-semibold capitalize">
                     {evidence.description}
                   </p>
-                  {evidence.image ? (
+                  {evidence.TaskEvidenceImages.length > 0 ? (
                     <p className="mt-2 line-clamp-2 font-medium">
-                      By {evidence.Account.fullname}
+                      By {evidence.TaskEvidenceImages[0]?.Account?.fullname}
                     </p>
                   ) : (
                     <div className="mt-2">
@@ -212,7 +219,7 @@ export default function ProjectDetail() {
                     </div>
                   )}
 
-                  {evidence.image && (
+                  {evidence.TaskEvidenceImages.length > 0 && (
                     <div className="mt-1 flex-row items-center justify-between">
                       <p className="font-regular text-xs text-slate-500">
                         {format(evidence.createdAt, "MMM dd, yyyy")}

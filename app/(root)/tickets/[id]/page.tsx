@@ -1,15 +1,15 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useParams } from "next/navigation";
 import {
   createTicketMessage,
   getTicketById,
   updateTicket,
 } from "@/lib/networks/ticket";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { Info, Mic, PaperclipIcon, Search, Send } from "lucide-react";
+import { Info, Mic, PaperclipIcon, Search, Send, XIcon } from "lucide-react";
 import { format } from "date-fns";
 import {
   CreateTicketMessageType,
@@ -25,6 +25,7 @@ import { useAccount } from "@/providers/AccountProvider";
 
 export default function TicketDetail() {
   const [messageText, setMessageText] = useState("");
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
 
   const { id } = useParams();
   const queryClient = useQueryClient();
@@ -59,12 +60,16 @@ export default function TicketDetail() {
   }, []);
 
   const { mutate: onCreateTicketMessage } = useMutation({
-    mutationFn: (values: CreateTicketMessageType) =>
+    mutationFn: async (values: CreateTicketMessageType) =>
       createTicketMessage(ticket!.id.toString(), values),
-
-    onError: (err) => {
-      console.log(err);
-      toast.error("Something went wrong!");
+    onSuccess: (savedMessage) => {
+      socket.emit("send_message", savedMessage);
+      queryClient.invalidateQueries({ queryKey: ["tickets", id] });
+      setMessageText("");
+      setSelectedImage(null);
+    },
+    onError: () => {
+      toast.error("Failed to send message.");
     },
   });
 
@@ -82,27 +87,17 @@ export default function TicketDetail() {
   });
 
   const handleSendMessage = () => {
-    if (!messageText.trim()) return;
+    if (!messageText.trim() && !selectedImage) return;
 
     const newMessage: CreateTicketMessageType = {
       content: messageText,
-      image: "",
+      image: selectedImage ?? "",
       ticketId: ticket!.id,
       accountId: account!.id ?? 0,
       type: "message",
     };
 
-    onCreateTicketMessage(newMessage, {
-      onSuccess: (savedMessage) => {
-        socket.emit("send_message", savedMessage);
-        queryClient.invalidateQueries({ queryKey: ["tickets", id] });
-
-        setMessageText("");
-      },
-      onError: () => {
-        toast.error("Failed to send message.");
-      },
-    });
+    onCreateTicketMessage(newMessage);
   };
 
   const onTicketUpdate = async (status: string, handlerId: number) => {
@@ -146,11 +141,7 @@ export default function TicketDetail() {
       }
 
       for (const msg of messages) {
-        onCreateTicketMessage(msg, {
-          onSuccess: (savedMessage) => {
-            socket.emit("send_message", savedMessage);
-          },
-        });
+        onCreateTicketMessage(msg);
       }
     } catch (err) {
       console.error("Update failed:", err);
@@ -164,15 +155,14 @@ export default function TicketDetail() {
 
   return (
     <section className="relative flex h-[89vh] w-[105%] -translate-x-6 flex-col">
-      {/* Header - Fixed */}
+      {/* Header */}
       <div className="sticky top-0 z-10 flex justify-between border-b bg-white px-6 py-2">
         <div className="flex gap-6">
           <div className="relative size-10 overflow-hidden rounded-full border">
             <Image
               src={
-                ticket.Requester.image
-                  ? ticket.Requester.image
-                  : "https://st3.depositphotos.com/6672868/13701/v/450/depositphotos_137014128-stock-illustration-user-profile-icon.jpg"
+                ticket.Requester.image ||
+                "https://st3.depositphotos.com/6672868/13701/v/450/depositphotos_137014128-stock-illustration-user-profile-icon.jpg"
               }
               alt={ticket.Requester.fullname}
               fill
@@ -194,9 +184,9 @@ export default function TicketDetail() {
         </div>
       </div>
 
-      {/* Scrollable Messages */}
+      {/* Message List */}
       <div className="flex-1 overflow-y-auto bg-white px-6 py-6">
-        {messages?.length > 0 ? (
+        {messages.length > 0 ? (
           <div className="flex flex-col">
             {messages.map((message, index) => {
               const prevMessage = messages[index - 1];
@@ -253,7 +243,9 @@ export default function TicketDetail() {
                       isCurrentUser
                         ? "bg-primary order-1"
                         : "order-2 bg-sky-400"
-                    } ${isSameSender && isCurrentUser ? "mr-12" : ""} ${isSameSender && !isCurrentUser ? "ms-12" : ""}`}
+                    } ${isSameSender && isCurrentUser ? "mr-12" : ""} ${
+                      isSameSender && !isCurrentUser ? "ms-12" : ""
+                    }`}
                   >
                     {!isSameSender && (
                       <div className="mb-2 flex flex-row items-center justify-between gap-16">
@@ -267,11 +259,26 @@ export default function TicketDetail() {
                         </div>
                       </div>
                     )}
-                    <div className="flex items-end justify-between gap-12">
+
+                    <div className="flex flex-col gap-2">
                       <p className="font-cereal-regular text-white">
                         {message.content}
                       </p>
-                      <p className="font-cereal-light text-[10px] text-white">
+
+                      {message.image && (
+                        <Image
+                          src={
+                            typeof message.image === "string"
+                              ? message.image
+                              : URL.createObjectURL(message.image)
+                          }
+                          alt="Attached"
+                          width={250}
+                          height={250}
+                          className="rounded-md"
+                        />
+                      )}
+                      <p className="font-cereal-light self-end text-[10px] text-white">
                         {format(message.createdAt, "HH:mm")}
                       </p>
                     </div>
@@ -287,9 +294,37 @@ export default function TicketDetail() {
         )}
       </div>
 
-      {/* Input Footer - Fixed */}
+      {/* Footer */}
+      {selectedImage && (
+        <div className="flex items-center gap-2 px-6 py-2">
+          <Image
+            src={URL.createObjectURL(selectedImage)}
+            alt="Preview"
+            width={200}
+            height={200}
+            className="rounded"
+          />
+          <XIcon
+            className="cursor-pointer"
+            onClick={() => setSelectedImage(null)}
+          />
+        </div>
+      )}
+
       <div className="bottom-0 z-10 flex items-center gap-6 border-t bg-white px-6 py-2">
-        <PaperclipIcon strokeWidth={1.4} className="size-6" />
+        <div className="relative">
+          <PaperclipIcon strokeWidth={1.4} className="size-6 cursor-pointer" />
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) setSelectedImage(file);
+            }}
+            className="absolute inset-0 cursor-pointer opacity-0"
+          />
+        </div>
+
         <Input
           placeholder="Your Message"
           className="flex-1 border-none shadow-none focus-visible:ring-0"

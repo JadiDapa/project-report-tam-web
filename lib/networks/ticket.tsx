@@ -9,21 +9,21 @@ export async function getAllTickets() {
 
 export async function getTicketsByRequesterId(accountId: string) {
   const { data } = await axiosInstance.get<{ data: TicketType[] }>(
-    "/tickets/requester/" + accountId
+    "/tickets/requester/" + accountId,
   );
   return data.data;
 }
 
 export async function getTicketsByHandlerId(accountId: string) {
   const { data } = await axiosInstance.get<{ data: TicketType[] }>(
-    "/tickets/handler/" + accountId
+    "/tickets/handler/" + accountId,
   );
   return data.data;
 }
 
 export async function getTicketById(id: string) {
   const { data } = await axiosInstance.get<{ data: TicketType }>(
-    "/tickets/" + id
+    "/tickets/" + id,
   );
   return data.data;
 }
@@ -36,16 +36,35 @@ export async function createTicket(values: CreateTicketType) {
 
 export async function createTicketMessage(
   id: string,
-  values: CreateTicketMessageType
+  values: CreateTicketMessageType,
 ) {
-  const { data } = await axiosInstance.post("/tickets/" + id, values);
+  const formData = new FormData();
+  formData.append("content", values.content);
+  formData.append("ticketId", values.ticketId.toString());
+  formData.append("accountId", values.accountId.toString());
+  if (values.type) formData.append("type", values.type);
+  if (values.image instanceof File) {
+    formData.append("image", values.image);
+  }
 
-  return data.data;
+  try {
+    const { data } = await axiosInstance.post(`/tickets/${id}`, formData, {
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    return data.data;
+  } catch (error) {
+    console.error("Upload error:", error);
+    throw error;
+  }
 }
 
 export async function updateTicket(
   id: string,
-  values: Partial<CreateTicketType>
+  values: Partial<CreateTicketType>,
 ) {
   const { data } = await axiosInstance.put("/tickets/" + id, values);
 

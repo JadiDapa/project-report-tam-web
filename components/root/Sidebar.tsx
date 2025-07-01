@@ -8,8 +8,9 @@ import useSidebarStore from "@/stores/SidebarStore";
 import { useClerk } from "@clerk/nextjs";
 import {
   ClipboardList,
-  House,
-  Image,
+  ClipboardPenLine,
+  // Image,
+  ListTodo,
   LogOut,
   Mailbox,
   Ticket,
@@ -22,11 +23,26 @@ import { toast } from "sonner";
 
 const userLink = [
   {
-    name: "Dashboard",
-    url: "/dashboard",
-    Icon: House,
+    name: "My Projects",
+    url: "/my-projects",
+    Icon: ClipboardPenLine,
     public: true,
   },
+  {
+    name: "My Daily Reports",
+    url: "/my-daily-reports",
+    Icon: ListTodo,
+    public: true,
+  },
+  {
+    name: "My Tickets",
+    url: "/my-tickets",
+    Icon: Ticket,
+    public: true,
+  },
+];
+
+const adminLink = [
   {
     name: "Accounts",
     url: "/accounts",
@@ -51,12 +67,12 @@ const userLink = [
     Icon: Ticket,
     public: true,
   },
-  {
-    name: "Evidence Alteration",
-    url: "/evidence-alteration",
-    Icon: Image,
-    public: true,
-  },
+  // {
+  //   name: "Evidence Alteration",
+  //   url: "/evidence-alteration",
+  //   Icon: Image,
+  //   public: true,
+  // },
 ];
 
 export default function Sidebar() {
@@ -112,6 +128,42 @@ export default function Sidebar() {
         <ScrollArea className="h-[85vh] text-slate-100">
           <Accordion type="single" className="flex flex-col gap-2" collapsible>
             {userLink.map((item) => {
+              return (
+                <div key={item.url}>
+                  <Link
+                    onClick={closeSidebar}
+                    key={item.url}
+                    href={item.url}
+                    className={cn(
+                      "text-secondary mt-1 flex w-full items-center justify-between rounded-lg px-5 py-2.5 duration-300",
+                      item.url !== "/" && pathname.startsWith(item.url)
+                        ? "bg-secondary text-primary shadow-sm"
+                        : "hover:bg-secondary/50 hover:text-secondary",
+                    )}
+                  >
+                    <div className="flex items-center justify-center gap-5">
+                      <item.Icon strokeWidth={1.8} size={24} />
+                      <div className="text-xl">{item.name}</div>
+                    </div>
+                  </Link>
+                </div>
+              );
+            })}
+            <Separator className="bg-secondary" />
+            <div
+              className={cn(
+                "text-secondary mt-1 flex h-full w-full cursor-pointer items-center px-5 py-2.5 duration-300",
+              )}
+            >
+              <div
+                onClick={handleLogout}
+                className={`"justify-center flex cursor-pointer items-center gap-5`}
+              >
+                <LogOut strokeWidth={1.8} size={24} />
+                <div className="text-xl">Log Out</div>
+              </div>
+            </div>
+            {adminLink.map((item) => {
               return (
                 <div key={item.url}>
                   <Link

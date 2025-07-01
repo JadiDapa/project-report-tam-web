@@ -30,12 +30,13 @@ export function AccountProvider({ children }: { children: ReactNode }) {
   const userEmail = user?.primaryEmailAddress?.emailAddress ?? "";
   const isLoginPage = pathname === "/login" || pathname === "/sign-in";
 
-  // ⛔ Don't run redirect directly in component body!
+  const isRootPage = pathname === "/";
+
   useEffect(() => {
-    if (isLoaded && !user && !isLoginPage) {
+    if (isLoaded && !user && !isLoginPage && !isRootPage) {
       router.push("/login");
     }
-  }, [isLoaded, user, isLoginPage, router]);
+  }, [isLoaded, user, isLoginPage, isRootPage, router]);
 
   // Skip query if not logged in
   const {

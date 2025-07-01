@@ -1,17 +1,16 @@
-import { AccountType } from "./account";
+import { TaskEvidenceImageType } from "./task-evidence-image";
 import { TaskType } from "./task";
 
 export interface CreateTaskEvidenceType {
-  image?: string | File;
+  title: string;
   description?: string;
   taskId: number;
-  accountId?: number;
 }
 
 export interface TaskEvidenceType extends CreateTaskEvidenceType {
   id: number;
-  Account: AccountType;
-  Task: TaskType;
   createdAt: Date;
   updatedAt: Date;
+  Task: TaskType;
+  TaskEvidenceImages: TaskEvidenceImageType[];
 }

@@ -14,12 +14,13 @@ import {
 } from "@/lib/types/task-evidence";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import ImageUploader from "../../ImageUpload";
-import { Calendar, User } from "lucide-react";
+import { Calendar, Send, User } from "lucide-react";
+import { CreateTaskEvidenceImageType } from "@/lib/types/task-evidence-image";
+import { Input } from "@/components/ui/input";
 
 interface EvidenceDetailModalProps {
   children: React.ReactNode;
@@ -30,13 +31,33 @@ export default function EvidenceDetailModal({
   children,
   evidence,
 }: EvidenceDetailModalProps) {
+  const [detail, setDetail] = useState<string>("");
+  const [createEvidence, setCreateEvidence] = useState<boolean>(false);
+  const [uploadedEvidences, setUploadedEvidences] = useState<
+    CreateTaskEvidenceImageType[]
+  >([]);
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [uploadedEvidence, setUploadedEvidence] = useState<string | File>();
+
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    if (evidence?.image) {
-      setUploadedEvidence(evidence.image);
+    if (
+      evidence?.TaskEvidenceImages &&
+      evidence.TaskEvidenceImages.length > 0
+    ) {
+      setUploadedEvidences(
+        evidence.TaskEvidenceImages.map((image) => ({
+          id: image.id,
+          image: image.image,
+          taskEvidenceId: image.taskEvidenceId,
+          accountId: image.accountId,
+        })),
+      );
+    }
+
+    if (evidence?.description) {
+      setDetail(evidence.description);
     }
   }, [evidence]);
 
@@ -44,30 +65,24 @@ export default function EvidenceDetailModal({
     mutationFn: (values: CreateTaskEvidenceType) =>
       updateTaskEvidence(evidence!.id.toString(), values),
     onSuccess: () => {
+      toast.success("Task Evidence Created Successfully");
       queryClient.invalidateQueries({ queryKey: ["evidences", evidence.id] });
-      queryClient.invalidateQueries({
-        queryKey: ["tasks", evidence?.taskId],
-      });
-
-      toast.success("Task Evidence Successfully Updated!");
+      setCreateEvidence(false);
+      setDetail("");
     },
     onError: (err) => {
       console.log(err);
-      toast.error("Task Evidence Update Failed!");
+      toast.error("Failed to create Task Evidence");
     },
   });
 
   const onSubmit = () => {
     onCreateTaskEvidence({
-      accountId: 1,
-      image: uploadedEvidence,
+      title: evidence?.title ?? "",
       taskId: Number(evidence?.taskId),
-      description: evidence?.description,
+      description: detail,
     });
-
-    setIsDialogOpen(false);
   };
-
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger>{children}</DialogTrigger>
@@ -92,27 +107,58 @@ export default function EvidenceDetailModal({
                 </p>
               </div>
             </div>
-            {evidence.image ? (
-              <div className="relative aspect-square w-full overflow-hidden rounded-md border-3 border-dashed border-slate-300">
-                <Image
-                  src={evidence.image as string}
-                  alt="Logo"
-                  fill
-                  className="object-contain object-center"
-                  unoptimized
-                />
+            {createEvidence ? (
+              <div className="relative mt-3 flex gap-3 bg-white">
+                <div className="flex-1">
+                  <Input
+                    value={detail}
+                    onChange={(e) => setDetail(e.target.value)}
+                    className="flex-1"
+                    placeholder="Add a description for this evidence..."
+                  />
+                </div>
+
+                <div
+                  onClick={() => onSubmit()}
+                  className="bg-primary justify-center rounded-md px-2"
+                >
+                  <Send className="" color={"#fff"} />
+                </div>
               </div>
             ) : (
-              <div>
-                <ImageUploader
-                  value={uploadedEvidence}
-                  onChange={(file) => setUploadedEvidence(file ?? undefined)}
-                />
-                <Button onClick={onSubmit} className="mt-4 w-full">
-                  Upload Image
-                </Button>
+              <div className="mt-3 flex items-end justify-between bg-white">
+                <div>
+                  <p className="font-cereal-medium font-semibold text-slate-600">
+                    Description
+                  </p>
+                  <p className="font-cereal-regular text-sm text-slate-600">
+                    {evidence.description || "No Description Provided"}
+                  </p>
+                </div>
+
+                <div
+                  onClick={() => setCreateEvidence(true)}
+                  className="bg-primary justify-center rounded-md px-2 py-1"
+                >
+                  <p className="font-cereal-regular text-sm text-white">
+                    {evidence.description
+                      ? "Edit Description"
+                      : "Add Description"}
+                  </p>
+                </div>
               </div>
             )}
+
+            <div className="mt-4">
+              <ImageUploader
+                uploadedEvidences={uploadedEvidences}
+                setUploadedEvidences={setUploadedEvidences}
+                evidenceId={evidence.id}
+              />
+              <Button onClick={onSubmit} className="mt-4 w-full">
+                Upload Image
+              </Button>
+            </div>
           </div>
         </DialogHeader>
       </DialogContent>
