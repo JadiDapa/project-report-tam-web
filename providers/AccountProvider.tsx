@@ -76,7 +76,8 @@ export function AccountProvider({ children }: { children: ReactNode }) {
   );
 
   if (!isLoaded) return <div>Loading...</div>; // Spinner placeholder
-  if (!user && !isLoginPage) return null; // Wait for redirect
+  if (!user && !isLoginPage && !isRootPage) return null;
+  // Wait for redirect
 
   return (
     <AccountContext.Provider value={value}>{children}</AccountContext.Provider>
