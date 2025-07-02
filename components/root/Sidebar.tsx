@@ -127,6 +127,10 @@ export default function Sidebar() {
 
         <ScrollArea className="h-[85vh] text-slate-100">
           <Accordion type="single" className="flex flex-col gap-2" collapsible>
+            <p className="text-secondary mt-2 px-5 text-lg font-semibold">
+              User Menu
+            </p>
+
             {userLink.map((item) => {
               return (
                 <div key={item.url}>
@@ -150,19 +154,10 @@ export default function Sidebar() {
               );
             })}
             <Separator className="bg-secondary" />
-            <div
-              className={cn(
-                "text-secondary mt-1 flex h-full w-full cursor-pointer items-center px-5 py-2.5 duration-300",
-              )}
-            >
-              <div
-                onClick={handleLogout}
-                className={`"justify-center flex cursor-pointer items-center gap-5`}
-              >
-                <LogOut strokeWidth={1.8} size={24} />
-                <div className="text-xl">Log Out</div>
-              </div>
-            </div>
+
+            <p className="text-secondary mt-2 px-5 text-lg font-semibold">
+              Admin Menu
+            </p>
             {adminLink.map((item) => {
               return (
                 <div key={item.url}>
