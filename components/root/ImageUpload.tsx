@@ -101,6 +101,7 @@ export default function UploadTaskEvidence({
               alt="Evidence"
               width={128}
               height={128}
+              unoptimized
               className="h-full w-full object-cover"
             />
             <button

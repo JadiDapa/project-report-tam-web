@@ -211,7 +211,7 @@ export default function ProjectDetail() {
                               y={viewBox.cy}
                               className="fill-foreground text-3xl font-bold"
                             >
-                              {globalPercentage().toLocaleString()} %
+                              {Math.floor(globalPercentage())} %
                             </tspan>
                             <tspan
                               x={viewBox.cx}

@@ -148,7 +148,7 @@ export default function ProjectDetail() {
                             y={viewBox.cy}
                             className="fill-foreground text-3xl font-bold"
                           >
-                            {taskProgress.toLocaleString()} %
+                            {Math.floor(taskProgress)} %
                           </tspan>
                           <tspan
                             x={viewBox.cx}
