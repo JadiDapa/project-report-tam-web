@@ -97,7 +97,9 @@ export const projectColumn: ColumnDef<ProjectType>[] = [
         const averagePercentage = (totalPercentage / tasks.length) * 100;
         return Math.round(averagePercentage);
       }
-      return <div className="text-base">{globalPercentage()} %</div>;
+      return (
+        <div className="text-base">{Math.floor(globalPercentage())} %</div>
+      );
     },
   },
   {

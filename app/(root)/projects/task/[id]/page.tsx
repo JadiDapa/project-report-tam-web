@@ -168,7 +168,7 @@ export default function ProjectDetail() {
           <div className="mt-2 text-center">
             <p className="font-semibold">Task Items</p>
             <p className="text-lg font-medium">
-              {taskProgress}% (
+              {Math.floor(taskProgress)}% (
               {
                 task.TaskEvidences.filter(
                   (e) => e.TaskEvidenceImages.length > 0,

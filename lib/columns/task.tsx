@@ -51,7 +51,7 @@ export const taskColumn: ColumnDef<TaskType>[] = [
           (task.quantity ?? 1)) *
         100;
 
-      return <div className="text-base">{taskProgress}%</div>;
+      return <div className="text-base">{Math.floor(taskProgress)}%</div>;
     },
   },
   {
