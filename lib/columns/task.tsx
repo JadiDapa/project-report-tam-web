@@ -2,9 +2,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import TableSorter from "@/components/root/TableSorter";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
-// import UpdateProjectModal from "@/components/root/project/UpdateProjectModal";
 import { TaskType } from "../types/task";
-import { TaskEvidenceType } from "../types/task-evidence";
 import Link from "next/link";
 
 export const taskColumn: ColumnDef<TaskType>[] = [
@@ -42,17 +40,18 @@ export const taskColumn: ColumnDef<TaskType>[] = [
   },
   {
     accessorKey: "progress",
-    accessorFn: (row) => row.TaskEvidences,
+    accessorFn: (row) => row,
     header: ({ column }) => <TableSorter column={column} header="PROGRESS" />,
-    cell: ({ getValue }) => {
-      const evidences = getValue() as TaskEvidenceType[];
+    cell: ({ row }) => {
+      const task = row.original as TaskType;
+      const taskProgress =
+        (task.TaskEvidences.filter(
+          (evidence) => evidence.TaskEvidenceImages.length > 0,
+        ).length /
+          (task.quantity ?? 1)) *
+        100;
 
-      const total = evidences.length;
-      const withImage = evidences.filter((evidence) => evidence.image).length;
-
-      const progress = total > 0 ? Math.round((withImage / total) * 100) : 0;
-
-      return <div className="text-base">{progress}%</div>;
+      return <div className="text-base">{taskProgress}%</div>;
     },
   },
   {

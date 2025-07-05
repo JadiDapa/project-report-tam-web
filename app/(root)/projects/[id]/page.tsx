@@ -54,19 +54,23 @@ export default function ProjectDetail() {
   const tasks = project?.Tasks;
 
   function globalPercentage() {
-    if (!tasks || tasks.length === 0) return 0;
+    if (!project?.Tasks || project?.Tasks.length === 0) return 0;
 
-    const totalPercentage = tasks.reduce((sum, task) => {
+    const totalPercentage = project?.Tasks.reduce((sum, task) => {
       const filledEvidences = task.TaskEvidences.filter(
-        (e) => !!e.image,
+        (e) => e.TaskEvidenceImages.length > 0,
       ).length;
-      const taskCompletion = Math.min(filledEvidences / task.quantity, 1); // Cap at 100%
+      const taskCompletion = Math.min(
+        filledEvidences / (task.quantity ?? 1),
+        1,
+      ); // Cap at 100%
       return sum + taskCompletion;
     }, 0);
 
-    const averagePercentage = (totalPercentage / tasks.length) * 100;
+    const averagePercentage = (totalPercentage / project.Tasks.length) * 100;
     return Math.round(averagePercentage);
   }
+
   const chartData = [
     { name: "Completed", value: globalPercentage(), fill: "var(--chart-1)" },
     {
@@ -105,16 +109,16 @@ export default function ProjectDetail() {
         type: row["type"]?.toString().trim() || "",
         item: row["item"]?.toString().trim() || "",
         quantity: Number(row["quantity"]) || 0,
-        projectId: project?.id ?? "",
+        projectId:
+          typeof project?.id === "string"
+            ? Number(project.id)
+            : (project?.id ?? 0),
       }));
 
       // 🔥 You need to define or pass this function to actually save the tasks
       onCreateTasks(formatted);
-
-      alert("Success: Data uploaded successfully");
     } catch (err) {
       console.error("Upload error:", err);
-      alert("Error: Failed to upload file");
     } finally {
       setUploading(false);
       event.target.value = ""; // Clear file input
@@ -228,7 +232,7 @@ export default function ProjectDetail() {
         </div>
         <div className="w-72 rounded-lg bg-white p-6 shadow-lg">
           <div className="flex gap-2">
-            <p className="text-xl font-semibold">Assigned Employees: </p>
+            <p className="text-xl font-semibold">Employees: </p>
             <p className="text-primary text-xl font-semibold">
               ({project.Employees.length})
             </p>

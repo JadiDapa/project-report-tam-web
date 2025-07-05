@@ -28,7 +28,7 @@ export default function ProjectDetail() {
 
   const { data: task } = useQuery({
     queryFn: () => getTaskById(id as string),
-    queryKey: ["task"],
+    queryKey: ["tasks", id],
   });
 
   if (!task) return null;
@@ -185,7 +185,11 @@ export default function ProjectDetail() {
         <p>Task Evidence Report</p>
         <div className="mt-2 grid grid-cols-4 gap-6">
           {task.TaskEvidences.map((evidence) => (
-            <EvidenceDetailModal key={evidence.id} evidence={evidence}>
+            <EvidenceDetailModal
+              key={evidence.id}
+              evidence={evidence}
+              taskId={id as string}
+            >
               <div className="flex flex-col items-center gap-3 rounded-xl bg-white p-4 shadow-md">
                 <div className="relative aspect-square w-full border">
                   <Image
@@ -194,7 +198,7 @@ export default function ProjectDetail() {
                         ? (evidence.TaskEvidenceImages[0].image as string)
                         : "https://static.vecteezy.com/system/resources/thumbnails/016/808/173/small_2x/camera-not-allowed-no-photography-image-not-available-concept-icon-in-line-style-design-isolated-on-white-background-editable-stroke-vector.jpg"
                     }
-                    alt={evidence.description as string}
+                    alt={evidence.title as string}
                     fill
                     className="object-contain object-center"
                     unoptimized
@@ -202,7 +206,7 @@ export default function ProjectDetail() {
                 </div>
                 <div className="flex w-full flex-col justify-between">
                   <p className="text-primary-500 line-clamp-2 font-semibold capitalize">
-                    {evidence.description}
+                    {evidence.title}
                   </p>
                   {evidence.TaskEvidenceImages.length > 0 ? (
                     <p className="mt-2 line-clamp-2 font-medium">

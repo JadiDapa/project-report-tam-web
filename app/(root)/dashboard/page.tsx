@@ -1,10 +1,12 @@
 "use client";
 
 import { useAccount } from "@/providers/AccountProvider";
+import { redirect } from "next/navigation";
 
 export default function DashboardPage() {
   const { account } = useAccount();
   console.log(account);
+  redirect("/projects");
   return (
     <section className="min-h-screen w-full space-y-6 overflow-hidden">
       <div className="grid w-full grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-5"></div>

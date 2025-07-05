@@ -3,7 +3,7 @@ import { AccountType } from "./account";
 
 export interface CreateTaskEvidenceImageType {
   id?: number;
-  image: string;
+  image: string | File;
   description?: string;
   taskEvidenceId: number;
   accountId?: number;

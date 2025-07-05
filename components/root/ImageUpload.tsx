@@ -9,6 +9,7 @@ import {
   deleteTaskEvidenceImage,
 } from "@/lib/networks/task-evidence-image";
 import { CreateTaskEvidenceImageType } from "@/lib/types/task-evidence-image";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface UploadTaskEvidenceProps {
   uploadedEvidences: CreateTaskEvidenceImageType[];
@@ -17,6 +18,7 @@ interface UploadTaskEvidenceProps {
   >;
   evidenceId: number;
   accountId?: number;
+  taskId?: string | number;
 }
 
 export default function UploadTaskEvidence({
@@ -24,8 +26,10 @@ export default function UploadTaskEvidence({
   setUploadedEvidences,
   evidenceId,
   accountId,
+  taskId = "",
 }: UploadTaskEvidenceProps) {
   const [uploading, setUploading] = useState(false);
+  const queryClient = useQueryClient();
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -40,7 +44,10 @@ export default function UploadTaskEvidence({
     setUploading(true);
     try {
       const response = await createTaskEvidenceImage(values);
+
       setUploadedEvidences((prev) => [...prev, response]);
+      queryClient.invalidateQueries({ queryKey: ["tasks", taskId] });
+
       toast.success("Image uploaded successfully");
     } catch (err) {
       console.error(err);
@@ -53,7 +60,10 @@ export default function UploadTaskEvidence({
   const handleDelete = async (id: number) => {
     try {
       await deleteTaskEvidenceImage(id.toString());
+
       setUploadedEvidences((prev) => prev.filter((img) => img.id !== id));
+      queryClient.invalidateQueries({ queryKey: ["tasks", taskId] });
+
       toast.success("Image deleted successfully");
     } catch (err) {
       console.error(err);

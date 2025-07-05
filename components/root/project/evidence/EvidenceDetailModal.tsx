@@ -16,7 +16,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
 import ImageUploader from "../../ImageUpload";
 import { Calendar, Send, User } from "lucide-react";
 import { CreateTaskEvidenceImageType } from "@/lib/types/task-evidence-image";
@@ -25,11 +24,13 @@ import { Input } from "@/components/ui/input";
 interface EvidenceDetailModalProps {
   children: React.ReactNode;
   evidence: TaskEvidenceType;
+  taskId: string | number;
 }
 
 export default function EvidenceDetailModal({
   children,
   evidence,
+  taskId,
 }: EvidenceDetailModalProps) {
   const [detail, setDetail] = useState<string>("");
   const [createEvidence, setCreateEvidence] = useState<boolean>(false);
@@ -66,7 +67,7 @@ export default function EvidenceDetailModal({
       updateTaskEvidence(evidence!.id.toString(), values),
     onSuccess: () => {
       toast.success("Task Evidence Created Successfully");
-      queryClient.invalidateQueries({ queryKey: ["evidences", evidence.id] });
+      queryClient.invalidateQueries({ queryKey: ["tasks", taskId] });
       setCreateEvidence(false);
       setDetail("");
     },
@@ -93,7 +94,7 @@ export default function EvidenceDetailModal({
           </DialogTitle>
           <div className="">
             <p className="text-primary text-xl font-medium capitalize">
-              {evidence.description}
+              {evidence.title}
             </p>
             <div className="mt-2 mb-6 flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -154,10 +155,8 @@ export default function EvidenceDetailModal({
                 uploadedEvidences={uploadedEvidences}
                 setUploadedEvidences={setUploadedEvidences}
                 evidenceId={evidence.id}
+                taskId={taskId}
               />
-              <Button onClick={onSubmit} className="mt-4 w-full">
-                Upload Image
-              </Button>
             </div>
           </div>
         </DialogHeader>

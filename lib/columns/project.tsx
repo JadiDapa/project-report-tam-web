@@ -5,6 +5,7 @@ import { id } from "date-fns/locale";
 import { ProjectType } from "../types/project";
 // import UpdateProjectModal from "@/components/root/project/UpdateProjectModal";
 import Link from "next/link";
+import { TaskType } from "../types/task";
 
 export const projectColumn: ColumnDef<ProjectType>[] = [
   {
@@ -79,17 +80,17 @@ export const projectColumn: ColumnDef<ProjectType>[] = [
     header: ({ column }) => <TableSorter column={column} header="PROGRESS" />,
     cell: ({ getValue }) => {
       function globalPercentage() {
-        const tasks = getValue() as {
-          TaskEvidences: { image?: string }[];
-          quantity: number;
-        }[];
+        const tasks = getValue() as TaskType[];
         if (!tasks || tasks.length === 0) return 0;
 
         const totalPercentage = tasks.reduce((sum, task) => {
           const filledEvidences = task.TaskEvidences.filter(
-            (e) => !!e.image,
+            (e) => e.TaskEvidenceImages.length > 0,
           ).length;
-          const taskCompletion = Math.min(filledEvidences / task.quantity, 1); // Cap at 100%
+          const taskCompletion = Math.min(
+            filledEvidences / (task.quantity ?? 1),
+            1,
+          ); // Cap at 100%
           return sum + taskCompletion;
         }, 0);
 

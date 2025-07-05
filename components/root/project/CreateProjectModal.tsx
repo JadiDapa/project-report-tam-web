@@ -308,7 +308,7 @@ export default function CreateProjectModal({
                     <ClipLoader
                       color={"#fff"}
                       loading={isPending}
-                      size={150}
+                      size={20}
                       aria-label="Loading Spinner"
                       data-testid="loader"
                     />
