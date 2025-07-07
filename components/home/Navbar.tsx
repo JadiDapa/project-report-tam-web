@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { useAccount } from "@/providers/AccountProvider";
 import Image from "next/image";
 import Link from "next/link";
@@ -9,8 +8,8 @@ export default function Navbar() {
   const { account } = useAccount();
 
   return (
-    <header className="flex items-center justify-between from-blue-50 px-24 py-4 shadow-md">
-      <div className="relative h-14 w-24">
+    <header className="flex items-center justify-between from-blue-50 px-4 py-4 shadow-md lg:px-24">
+      <div className="relative h-10 w-20 lg:h-14 lg:w-24">
         <Image
           src="/images/logo.png"
           alt="logo"
@@ -32,25 +31,29 @@ export default function Navbar() {
         >
           Contact
         </Link>
-        <Link
-          href="#"
+        <a
+          href="https://expo.dev/artifacts/eas/gcwfCj9wHHjdsjL1pNPuWE.apk"
+          download
           className="font-medium text-blue-500 transition-colors hover:text-blue-600"
         >
           Download App
-        </Link>
+        </a>
       </nav>
 
       {account ? (
         <Link
           href={"/dashboard"}
-          className="rounded-full bg-gray-900 px-6 py-2 text-white hover:bg-gray-800"
+          className="rounded-full bg-gray-900 px-4 py-2 text-sm text-white hover:bg-gray-800 lg:px-6 lg:text-base"
         >
           Dashboard
         </Link>
       ) : (
-        <Button className="rounded-full bg-gray-900 px-6 py-2 text-white hover:bg-gray-800">
+        <Link
+          href={"/login"}
+          className="rounded-full bg-gray-900 px-4 py-2 text-sm text-white hover:bg-gray-800 lg:px-6 lg:text-base"
+        >
           Sign In
-        </Button>
+        </Link>
       )}
     </header>
   );

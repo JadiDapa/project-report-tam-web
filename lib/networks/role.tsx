@@ -8,7 +8,7 @@ export async function getAllRoles() {
 
 export async function getRoleByEmail(email: string) {
   const { data } = await axiosInstance.get<{ data: RoleType }>(
-    "/roles/email/" + email
+    "/roles/email/" + email,
   );
   return data.data;
 }

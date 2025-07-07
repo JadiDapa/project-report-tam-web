@@ -8,8 +8,8 @@ export default function HomePage() {
     <>
       <Navbar />
       <Hero />
-      <Features />
-      <Footer />
+      {/* <Features />
+      <Footer /> */}
     </>
   );
 }

@@ -3,7 +3,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import ExcelExport from "@/components/root/ExcelExport";
-import LayoutSwitch from "@/components/root/LayoutSwitch";
 import { getTaskById, getTaskReportEvidences } from "@/lib/networks/task";
 import Image from "next/image";
 import { format } from "date-fns";
@@ -79,7 +78,6 @@ export default function ProjectDetail() {
           </p>
         </div>
         <div className="flex items-center gap-4 lg:gap-6">
-          <LayoutSwitch />
           <ExcelExport
             data={task.TaskEvidences}
             filename="tam-task-evidence.xlsx"
@@ -94,28 +92,31 @@ export default function ProjectDetail() {
         </div>
       </div>
 
-      <div className="flex gap-6">
-        <div className="flex flex-1 rounded-lg bg-white p-6 shadow-lg">
-          <div className="flex flex-1 flex-col justify-between">
-            <div className="">
-              <p className="font-bold">Task :</p>
-              <h1 className="text-primary text-2xl font-semibold capitalize">
+      <div className="flex flex-col gap-6 lg:flex-row">
+        {/* Left Section (Task Info) */}
+        <div className="flex-1 rounded-lg bg-white p-4 shadow-lg sm:p-6">
+          <div className="flex h-full flex-col justify-between">
+            <div>
+              <p className="text-sm font-semibold text-gray-600">Task:</p>
+              <h1 className="text-primary text-2xl font-bold capitalize">
                 {`${task.type} - ${task.item}`}
               </h1>
-              <p className="text-sm font-medium">
-                From Project : {task.Project.title}
+              <p className="text-sm font-medium text-gray-700">
+                From Project: {task.Project.title}
               </p>
-              <p className="mt-4">
+              <p className="mt-4 text-sm text-gray-600">
                 {task.description || "No Description Provided"}
               </p>
             </div>
-            <div className="flex items-center gap-2">
-              <Calendar className="size-5" />
+            <div className="mt-6 flex items-center gap-2 text-sm text-gray-600">
+              <Calendar className="size-5 shrink-0" />
               <p>Created At: {format(task.createdAt, "dd MMMM yyyy")}</p>
             </div>
           </div>
         </div>
-        <div className="rounded-lg bg-white p-6 shadow-lg">
+
+        {/* Right Section (Chart) */}
+        <div className="w-full rounded-lg bg-white p-4 shadow-lg sm:p-6 lg:max-w-xs">
           <ChartContainer
             config={chartConfig}
             className="mx-auto aspect-square h-40"
@@ -146,14 +147,14 @@ export default function ProjectDetail() {
                           <tspan
                             x={viewBox.cx}
                             y={viewBox.cy}
-                            className="fill-foreground text-3xl font-bold"
+                            className="fill-foreground text-xl font-bold sm:text-2xl"
                           >
-                            {Math.floor(taskProgress)} %
+                            {Math.floor(taskProgress)}%
                           </tspan>
                           <tspan
                             x={viewBox.cx}
-                            y={(viewBox.cy || 0) + 24}
-                            className="fill-muted-foreground"
+                            y={(viewBox.cy || 0) + 20}
+                            className="fill-muted-foreground text-xs"
                           >
                             Progression
                           </tspan>
@@ -165,9 +166,11 @@ export default function ProjectDetail() {
               </Pie>
             </PieChart>
           </ChartContainer>
-          <div className="mt-2 text-center">
-            <p className="font-semibold">Task Items</p>
-            <p className="text-lg font-medium">
+
+          {/* Summary */}
+          <div className="mt-4 text-center">
+            <p className="text-sm font-semibold text-gray-700">Task Items</p>
+            <p className="text-base font-medium text-gray-800">
               {Math.floor(taskProgress)}% (
               {
                 task.TaskEvidences.filter(
@@ -180,18 +183,22 @@ export default function ProjectDetail() {
         </div>
       </div>
 
-      <div className="mt-4">
-        <h2 className="text-primary text-2xl font-semibold">Task Evidences</h2>
-        <p>Task Evidence Report</p>
-        <div className="mt-2 grid grid-cols-4 gap-6">
+      <div className="mt-6">
+        <h2 className="text-primary text-xl font-semibold sm:text-2xl">
+          Task Evidences
+        </h2>
+        <p className="text-sm text-gray-600">Task Evidence Report</p>
+
+        <div className="mt-4 grid grid-cols-2 gap-4 md:gap-6 lg:grid-cols-3 xl:grid-cols-4">
           {task.TaskEvidences.map((evidence) => (
             <EvidenceDetailModal
               key={evidence.id}
               evidence={evidence}
               taskId={id as string}
             >
-              <div className="flex flex-col items-center gap-3 rounded-xl bg-white p-4 shadow-md">
-                <div className="relative aspect-square w-full border">
+              <div className="flex flex-col items-center gap-3 rounded-xl bg-white p-4 shadow-md transition hover:shadow-lg">
+                {/* Image Preview */}
+                <div className="relative aspect-square w-full overflow-hidden rounded border">
                   <Image
                     src={
                       evidence.TaskEvidenceImages.length > 0
@@ -204,29 +211,29 @@ export default function ProjectDetail() {
                     unoptimized
                   />
                 </div>
-                <div className="flex w-full flex-col justify-between">
-                  <p className="text-primary-500 line-clamp-2 font-semibold capitalize">
+
+                {/* Info Section */}
+                <div className="flex w-full flex-col">
+                  <p className="text-primary-500 line-clamp-2 text-sm font-semibold capitalize">
                     {evidence.title}
                   </p>
+
                   {evidence.TaskEvidenceImages.length > 0 ? (
-                    <p className="mt-2 line-clamp-2 font-medium">
-                      By {evidence.TaskEvidenceImages[0]?.Account?.fullname}
-                    </p>
+                    <>
+                      <p className="mt-2 line-clamp-2 text-sm font-medium text-gray-700">
+                        By {evidence.TaskEvidenceImages[0]?.Account?.fullname}
+                      </p>
+                      <p className="mt-1 text-xs text-slate-500">
+                        {format(evidence.createdAt, "MMM dd, yyyy")}
+                      </p>
+                    </>
                   ) : (
                     <div className="mt-2">
-                      <p className="line-clamp-2 font-bold text-red-400">
+                      <p className="text-sm font-bold text-red-500">
                         No Report Yet
                       </p>
-                      <p className="font-regular mt-1 text-xs">
+                      <p className="text-xs text-gray-500">
                         (Click to Upload Evidence)
-                      </p>
-                    </div>
-                  )}
-
-                  {evidence.TaskEvidenceImages.length > 0 && (
-                    <div className="mt-1 flex-row items-center justify-between">
-                      <p className="font-regular text-xs text-slate-500">
-                        {format(evidence.createdAt, "MMM dd, yyyy")}
                       </p>
                     </div>
                   )}

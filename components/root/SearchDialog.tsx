@@ -70,7 +70,7 @@ export default function SearchDialog() {
   });
 
   return (
-    <div className="border-secondary flex items-center gap-4 rounded-lg border lg:h-[40px] lg:w-80 lg:px-2">
+    <div className="border-secondary flex items-center gap-4 rounded-lg lg:h-[40px] lg:w-80 lg:border lg:px-2">
       <div className="items-center justify-center rounded-full duration-300 hover:bg-gray-200">
         <Search strokeWidth={1.5} size={24} className="text-secondary" />
       </div>

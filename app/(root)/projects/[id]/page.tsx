@@ -4,7 +4,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { getProjectById } from "@/lib/networks/project";
 import ExcelExport from "@/components/root/ExcelExport";
-import LayoutSwitch from "@/components/root/LayoutSwitch";
 import DataTable from "@/components/root/DataTable";
 import { taskColumn } from "@/lib/columns/task";
 import SearchDataTable from "@/components/root/SearchDataTable";
@@ -15,7 +14,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { Label, Pie, PieChart } from "recharts";
-import { BetweenHorizonalStart, Calendar } from "lucide-react";
+import { BetweenHorizonalStart, CalendarCheck, CalendarX } from "lucide-react";
 import { format } from "date-fns";
 import Image from "next/image";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -138,7 +137,6 @@ export default function ProjectDetail() {
           </p>
         </div>
         <div className="flex items-center gap-4 lg:gap-6">
-          <LayoutSwitch />
           <ExcelExport data={project.Tasks} filename="tam-projects.xlsx" />
           <Button
             onClick={handleUploadClick}
@@ -159,30 +157,42 @@ export default function ProjectDetail() {
         </div>
       </div>
 
-      <div className="flex gap-6">
-        <div className="flex flex-1 justify-between rounded-lg bg-white p-6 shadow-lg">
+      <div className="flex flex-col gap-6 lg:flex-row">
+        <div className="flex flex-1 flex-col gap-6 rounded-lg bg-white p-4 shadow-lg sm:p-6 lg:flex-row lg:items-start lg:justify-between">
+          {/* Left Content */}
           <div className="flex-1">
-            <p className="font-bold">Project :</p>
-            <h1 className="text-primary text-2xl font-semibold">
-              {project.title}
-            </h1>
-            <p className="mt-3">{project.description}</p>
-            <div className="mt-12 flex gap-24">
-              <div className="flex items-center gap-2">
-                <Calendar className="size-5" />
-                <p>Start: {format(project.startDate, "dd MMMM yyyy")}</p>
+            <p className="text-sm font-semibold text-gray-600">Project:</p>
+            <h1 className="text-primary text-2xl font-bold">{project.title}</h1>
+            <p className="mt-2 text-sm text-gray-700 sm:text-base">
+              {project.description}
+            </p>
+
+            {/* Dates */}
+            <div className="mt-6 flex flex-col justify-between gap-2 sm:gap-12 lg:flex-row lg:justify-normal">
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <CalendarCheck className="size-5 shrink-0 lg:block" />
+                <p>
+                  Start:{" "}
+                  <span className="text-primary font-medium">
+                    {format(project.startDate, "dd MMMM yyyy")}
+                  </span>
+                </p>
               </div>
-              <div className="flex items-center gap-2">
-                <Calendar className="size-5" />
-                <p>Deadline: {format(project.startDate, "dd MMMM yyyy")}</p>
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <CalendarX className="size-5 shrink-0 lg:block" />
+                <p>
+                  Deadline:{" "}
+                  <span className="text-primary font-medium">
+                    {format(project.endDate, "dd MMMM yyyy")}
+                  </span>
+                </p>
               </div>
             </div>
           </div>
-          <div className="pb-0">
-            <ChartContainer
-              config={chartConfig}
-              className="mx-auto aspect-square h-40"
-            >
+
+          {/* Right Chart */}
+          <div className="mx-auto w-full max-w-[200px] sm:max-w-[250px] lg:mx-0">
+            <ChartContainer config={chartConfig} className="aspect-square">
               <PieChart>
                 <ChartTooltip
                   cursor={false}
@@ -209,14 +219,14 @@ export default function ProjectDetail() {
                             <tspan
                               x={viewBox.cx}
                               y={viewBox.cy}
-                              className="fill-foreground text-3xl font-bold"
+                              className="fill-foreground text-xl font-bold sm:text-2xl"
                             >
                               {Math.floor(globalPercentage())} %
                             </tspan>
                             <tspan
                               x={viewBox.cx}
-                              y={(viewBox.cy || 0) + 24}
-                              className="fill-muted-foreground"
+                              y={(viewBox.cy || 0) + 20}
+                              className="fill-muted-foreground text-xs"
                             >
                               Progression
                             </tspan>
@@ -230,7 +240,8 @@ export default function ProjectDetail() {
             </ChartContainer>
           </div>
         </div>
-        <div className="w-72 rounded-lg bg-white p-6 shadow-lg">
+
+        <div className="w-full rounded-lg bg-white p-6 shadow-lg lg:w-80">
           <div className="flex gap-2">
             <p className="text-xl font-semibold">Employees: </p>
             <p className="text-primary text-xl font-semibold">

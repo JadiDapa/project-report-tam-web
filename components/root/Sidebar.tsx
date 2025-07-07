@@ -106,13 +106,7 @@ export default function Sidebar() {
             href={"/"}
             className="flex w-full items-center justify-center gap-2"
           >
-            <p className="text-secondary text-xl font-bold lg:text-2xl">
-              TAM &
-            </p>
-
-            <p className="text-secondary text-xl font-bold lg:text-2xl">
-              INTEGRA
-            </p>
+            <p className="text-secondary text-xl font-bold lg:text-2xl">TAM</p>
           </Link>
 
           <X

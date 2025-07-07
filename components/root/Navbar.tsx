@@ -20,13 +20,13 @@ export default function Navbar() {
   }
 
   return (
-    <div className="bg-primary flex w-full flex-row items-center justify-between gap-4 px-6 lg:gap-6 lg:py-4">
+    <div className="bg-primary flex w-full flex-row items-center justify-between gap-4 px-4 lg:gap-6 lg:px-6 lg:py-4">
       <div className="flex items-center gap-6">
         <Menu
           strokeWidth={1.5}
           size={28}
           onClick={openSidebar}
-          className="lg:hidden"
+          className="text-white lg:hidden"
         />
         <SearchDialog />
       </div>
@@ -53,7 +53,7 @@ export default function Navbar() {
               className="object-cover object-center"
             />
           </figure>
-          <div className="">
+          <div className="hidden lg:block">
             <p className="text-secondary font-medium">{account?.fullname}</p>
             <p className="text-secondary text-sm font-semibold">
               {account?.Role.name}

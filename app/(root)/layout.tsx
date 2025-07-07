@@ -28,7 +28,7 @@ export default function RootLayout({ children }: Props) {
 
       <main className="w-full lg:ml-[233px]">
         <Navbar />
-        <div className="px-6">{children}</div>
+        <div className="px-4">{children}</div>
       </main>
     </section>
   );

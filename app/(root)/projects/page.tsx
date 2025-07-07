@@ -1,7 +1,10 @@
 "use client";
 
 import {
+  ClipboardCheck,
   ClipboardList,
+  ClipboardX,
+  Clock,
   GripVertical,
   Info,
   Plus,
@@ -58,23 +61,23 @@ export default function ProjectsDashboard() {
       title: "Running Projects",
       value:
         projects?.filter((project) => project.status !== "closed").length ?? 0,
-      icon: ClipboardList,
-      description: "All existing projects in TAM",
+      icon: ClipboardCheck,
+      description: "Projects that are currently active",
     },
     {
       title: "Closed Projects",
       value:
         projects?.filter((project) => project.status === "closed").length ?? 0,
-      icon: ClipboardList,
-      description: "All existing projects in TAM",
+      icon: ClipboardX,
+      description: "Projects that completed or closed",
     },
     {
       title: "Latest Project",
       value: projects
         ? projects[projects.length - 1].title
         : "No Project Found",
-      icon: ClipboardList,
-      description: "All existing projects in TAM",
+      icon: Clock,
+      description: "Most recently created project",
     },
   ];
 
@@ -121,26 +124,28 @@ export default function ProjectsDashboard() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-6">
           {statistics.map((stat) => (
             <div
               key={stat.title}
-              className="flex justify-between gap-4 rounded-xl bg-white p-6 shadow-md"
+              className="flex justify-between gap-2 rounded-xl bg-white p-3 shadow-md lg:gap-4 lg:p-6"
             >
               <div className="flex flex-col justify-between gap-1">
                 <div className="space-y-1">
-                  <p className="text-muted-foreground">{stat.title}</p>
+                  <p className="text-muted-foreground text-sm">{stat.title}</p>
                   <p
-                    className={`text-primary ${stat.title === "Latest Project" ? "line-clamp-2 text-lg font-medium" : "text-4xl font-semibold"}`}
+                    className={`text-primary max-sm:w-24 ${stat.title === "Latest Project" ? "line-clamp-2 text-lg font-medium" : "text-4xl font-semibold"}`}
                   >
                     {stat.value}
                   </p>
                 </div>
-                <p className="text-sm text-slate-400">{stat.description}</p>
+                <p className="text-xs text-slate-400 lg:text-sm">
+                  {stat.description}
+                </p>
               </div>
               <div className="">
-                <div className="bg-primary text-secondary grid h-10 w-10 place-items-center rounded-md">
-                  <stat.icon size={24} strokeWidth={1.8} />
+                <div className="bg-primary text-secondary grid size-8 place-items-center rounded-md lg:size-10">
+                  <stat.icon className="size-5 lg:size-6" strokeWidth={1.8} />
                 </div>
               </div>
             </div>
@@ -177,16 +182,16 @@ export default function ProjectsDashboard() {
                 <Link
                   href={`/projects/${project.id}`}
                   key={project.id}
-                  className="group flex flex-col justify-between rounded-xl bg-white px-6 py-5 shadow-lg transition-all duration-200 hover:opacity-80 hover:shadow-2xl md:flex-row md:items-center"
+                  className="group flex justify-between rounded-xl bg-white px-3 py-3 shadow-lg transition-all duration-200 hover:opacity-80 hover:shadow-2xl md:flex-row md:items-center lg:px-6 lg:py-5"
                 >
                   {/* Left: Project Info */}
-                  <div className="flex items-center gap-4 md:flex-1">
-                    <GripVertical className="size-8 shrink-0 text-slate-400" />
+                  <div className="flex items-center gap-3 md:flex-1 lg:gap-4">
+                    <GripVertical className="size-5 shrink-0 text-slate-400 lg:size-8" />
                     <div>
-                      <h2 className="group-hover:text-primary text-lg font-semibold text-slate-800">
+                      <h2 className="group-hover:text-primary font-semibold text-slate-800 lg:text-lg">
                         {project.title}
                       </h2>
-                      <p className="mt-1 text-sm text-slate-500">
+                      <p className="mt-1 text-xs text-slate-500 lg:text-sm">
                         Created:{" "}
                         {format(new Date(project.createdAt), "dd MMMM yyyy")}
                       </p>
@@ -194,9 +199,9 @@ export default function ProjectsDashboard() {
                   </div>
 
                   {/* Right: Status, Employees, Progress */}
-                  <div className="mt-4 flex flex-wrap items-center justify-between gap-8 md:mt-0 md:w-auto md:justify-end">
+                  <div className="flex flex-wrap items-center justify-between gap-8 md:mt-0 md:w-auto md:justify-end">
                     {/* Status */}
-                    <div className="flex items-center gap-2">
+                    <div className="hidden items-center gap-2 lg:flex">
                       <Info className="size-4 text-slate-600" />
                       <p
                         className={`font-semibold capitalize ${status?.bgColor}`}
@@ -206,7 +211,7 @@ export default function ProjectsDashboard() {
                     </div>
 
                     {/* Employees */}
-                    <div className="flex items-center gap-2">
+                    <div className="hidden items-center gap-2 lg:flex">
                       <UsersRound className="size-4 text-slate-600" />
                       <span className="font-semibold text-slate-700">
                         {project.Employees.length} Employees
