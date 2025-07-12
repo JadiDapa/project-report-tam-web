@@ -59,15 +59,8 @@ export async function createProject(values: CreateProjectType) {
 }
 
 // Update a project
-export async function updateProject(
-  id: string,
-  values: CreateProjectType,
-  getToken: () => Promise<string | null>,
-) {
-  const token = await getToken();
-  const { data } = await axiosInstance.put(`/projects/${id}`, values, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+export async function updateProject(id: string, values: CreateProjectType) {
+  const { data } = await axiosInstance.put(`/projects/${id}`, values, {});
   return data.data;
 }
 

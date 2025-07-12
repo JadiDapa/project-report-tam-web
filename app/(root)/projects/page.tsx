@@ -7,6 +7,7 @@ import {
   Clock,
   GripVertical,
   Info,
+  ListCheck,
   Plus,
   UsersRound,
 } from "lucide-react";
@@ -98,7 +99,7 @@ export default function ProjectsDashboard() {
     }, 0);
 
     const averagePercentage = (totalPercentage / tasks.length) * 100;
-    return Math.round(averagePercentage);
+    return Number(averagePercentage.toFixed(1));
   }
 
   if (projects) {
@@ -200,6 +201,16 @@ export default function ProjectsDashboard() {
 
                   {/* Right: Status, Employees, Progress */}
                   <div className="flex flex-wrap items-center justify-between gap-8 md:mt-0 md:w-auto md:justify-end">
+                    {/* Tasks */}
+                    <div className="hidden items-center gap-2 lg:flex">
+                      <ListCheck className="size-4 text-slate-600" />
+                      <p
+                        className={`font-semibold capitalize ${status?.bgColor}`}
+                      >
+                        {project.Tasks.length} Tasks
+                      </p>
+                    </div>
+
                     {/* Status */}
                     <div className="hidden items-center gap-2 lg:flex">
                       <Info className="size-4 text-slate-600" />

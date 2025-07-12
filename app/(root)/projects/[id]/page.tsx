@@ -14,7 +14,12 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { Label, Pie, PieChart } from "recharts";
-import { BetweenHorizonalStart, CalendarCheck, CalendarX } from "lucide-react";
+import {
+  BetweenHorizonalStart,
+  CalendarCheck,
+  CalendarX,
+  Pencil,
+} from "lucide-react";
 import { format } from "date-fns";
 import Image from "next/image";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -24,6 +29,7 @@ import { Button } from "@/components/ui/button";
 import { createTasks } from "@/lib/networks/task";
 import { CreateTaskType } from "@/lib/types/task";
 import { toast } from "sonner";
+import UpdateProjectModal from "@/components/root/project/UpdateProjectModal";
 
 export default function ProjectDetail() {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -42,7 +48,7 @@ export default function ProjectDetail() {
     mutationFn: (values: CreateTaskType[]) => createTasks(values),
     onSuccess: () => {
       toast.success("Task Created Successfully!");
-      queryClient.invalidateQueries({ queryKey: ["project", id] });
+      queryClient.invalidateQueries({ queryKey: ["projects", id] });
     },
     onError: (err) => {
       console.log(err);
@@ -67,7 +73,7 @@ export default function ProjectDetail() {
     }, 0);
 
     const averagePercentage = (totalPercentage / project.Tasks.length) * 100;
-    return Math.round(averagePercentage);
+    return Number(averagePercentage.toFixed(1));
   }
 
   const chartData = [
@@ -137,6 +143,12 @@ export default function ProjectDetail() {
           </p>
         </div>
         <div className="flex items-center gap-4 lg:gap-6">
+          <UpdateProjectModal project={project}>
+            <div className="bg-primary text-secondary flex place-items-center gap-4 rounded-md px-4 py-1.5 text-lg shadow-sm">
+              <p>Modify Project</p>
+              <Pencil size={24} />
+            </div>
+          </UpdateProjectModal>
           <ExcelExport data={project.Tasks} filename="tam-projects.xlsx" />
           <Button
             onClick={handleUploadClick}
@@ -221,7 +233,7 @@ export default function ProjectDetail() {
                               y={viewBox.cy}
                               className="fill-foreground text-xl font-bold sm:text-2xl"
                             >
-                              {Math.floor(globalPercentage())} %
+                              {globalPercentage()} %
                             </tspan>
                             <tspan
                               x={viewBox.cx}

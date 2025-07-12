@@ -43,14 +43,14 @@ export default function Hero() {
               <a
                 href="https://expo.dev/artifacts/eas/gcwfCj9wHHjdsjL1pNPuWE.apk"
                 download
-                className="bg-primary group border-primary hover:text-primary flex w-40 items-center justify-center gap-3 rounded-full border-2 py-2 text-white transition-all hover:bg-transparent lg:w-44"
+                className="bg-primary group border-primary hover:text-primary flex w-36 items-center justify-center gap-3 rounded-full border-2 py-2 text-white transition-all hover:bg-transparent lg:w-44"
               >
                 <Download className="group-hover:text-primary size-4 text-white lg:size-5" />
                 <span className="text-sm">Download App</span>
               </a>
               <Link
                 href={"/login"}
-                className="border-primary group hover:bg-primary flex w-40 items-center justify-center gap-3 rounded-full border-2 bg-transparent py-2 transition-all lg:w-44"
+                className="border-primary group hover:bg-primary flex w-36 items-center justify-center gap-3 rounded-full border-2 bg-transparent py-2 transition-all lg:w-44"
               >
                 <Play className="text-primary size-4 group-hover:text-white lg:size-5" />
                 <span className="text-primary text-sm group-hover:text-white">
@@ -64,11 +64,11 @@ export default function Hero() {
           <div className="relative">
             {/* Large blue circle background */}
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="h-96 w-96 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 opacity-20"></div>
+              <div className="size-80 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 opacity-20 lg:size-96"></div>
             </div>
 
             {/* Phone mockup */}
-            <div className="relative z-10 mx-auto h-[520px] w-96">
+            <div className="relative z-10 mx-auto h-[520px] w-80 lg:w-96">
               <Image
                 src="/images/mockup.png"
                 alt="Mockup"
@@ -78,7 +78,7 @@ export default function Hero() {
             </div>
 
             {/* Floating avatar */}
-            <div className="bg-primary absolute bottom-20 -left-8 flex h-16 w-16 items-center justify-center rounded-full shadow-lg"></div>
+            <div className="bg-primary absolute bottom-20 -left-2 flex size-16 items-center justify-center rounded-full shadow-lg lg:-left-8"></div>
           </div>
         </div>
       </div>

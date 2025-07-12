@@ -32,8 +32,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { createProject } from "@/lib/networks/project";
-import { CreateProjectType } from "@/lib/types/project";
+import { updateProject } from "@/lib/networks/project";
+import { CreateProjectType, ProjectType } from "@/lib/types/project";
 import {
   Popover,
   PopoverContent,
@@ -50,12 +50,12 @@ const projectSchema = z.object({
   startDate: z.date(),
   endDate: z.date(),
   status: z.enum(["low", "medium", "high"]),
-  Employees: z.array(z.number()),
+  Employees: z.any(),
 });
 
 interface UpdateProjectModalProps {
   children: React.ReactNode;
-  project: CreateProjectType;
+  project: ProjectType;
 }
 
 export default function UpdateProjectModal({
@@ -74,9 +74,10 @@ export default function UpdateProjectModal({
   });
 
   const { mutateAsync: onCreateProject, isPending } = useMutation({
-    mutationFn: (values: CreateProjectType) => createProject(values),
+    mutationFn: (values: CreateProjectType) =>
+      updateProject(project.id.toString(), values),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["projects"] });
+      queryClient.invalidateQueries({ queryKey: ["projects", project.id] });
       setIsDialogOpen(false);
     },
     onError: () => {

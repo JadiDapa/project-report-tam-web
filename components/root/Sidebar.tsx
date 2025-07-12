@@ -17,6 +17,7 @@ import {
   Users,
   X,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { toast } from "sonner";
@@ -89,32 +90,36 @@ export default function Sidebar() {
     <>
       <aside
         className={cn(
-          "box-shadow bg-primary fixed z-50 min-h-screen w-[280px] space-y-3 overflow-hidden px-4 py-7 shadow-sm transition-all duration-500",
+          "box-shadow bg-primary fixed z-50 min-h-screen w-[280px] space-y-3 px-4 py-7 shadow-sm transition-all duration-500",
           isSidebarOpen ? "translate-x-0" : "max-lg:-translate-x-full",
         )}
       >
         <div className="flex w-full items-center gap-4 px-5 pb-1">
-          {/* <Link href={"/"} className="relative flex size-24 items-center gap-4">
+          <Link href={"/"} className="relative flex size-24 items-center gap-4">
             <Image
               src="/images/logo.png"
               alt="Logo"
               className="object-contain object-center"
               fill
             />
-          </Link> */}
+          </Link>
           <Link
             href={"/"}
             className="flex w-full items-center justify-center gap-2"
           >
-            <p className="text-secondary text-xl font-bold lg:text-2xl">TAM</p>
+            <p className="text-secondary text-lg font-bold">
+              PROJECT MANAGEMENT
+            </p>
           </Link>
 
-          <X
-            onClick={closeSidebar}
-            className="text-primary lg:hidden"
-            size={32}
-            strokeWidth={1.8}
-          />
+          {isSidebarOpen && (
+            <X
+              onClick={closeSidebar}
+              className="bg-primary absolute top-12 -right-8 cursor-pointer rounded-ee-md text-white lg:hidden"
+              size={32}
+              strokeWidth={1.8}
+            />
+          )}
         </div>
 
         <Separator className="bg-secondary" />
