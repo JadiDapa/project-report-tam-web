@@ -14,7 +14,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (isLoaded && user) {
-      router.replace("/dashboard"); // or your desired protected route
+      router.replace("/my-projects"); // or your desired protected route
     }
   }, [isLoaded, user, router]);
 

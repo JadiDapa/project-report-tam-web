@@ -23,6 +23,9 @@ import Link from "next/link";
 import CircularProgress from "@/components/root/CircularProgress";
 import { TaskEvidenceType } from "@/lib/types/task-evidence";
 import { format } from "date-fns";
+import { useAccount } from "@/providers/AccountProvider";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export const statuses = [
   {
@@ -46,10 +49,18 @@ export const statuses = [
 ];
 
 export default function ProjectsDashboard() {
+  const { account } = useAccount();
   const { data: projects } = useQuery({
     queryFn: getAllProjects,
     queryKey: ["projects"],
   });
+  const router = useRouter();
+
+  useEffect(() => {
+    if (account && account.Role.name !== "Administrator") {
+      router.replace("/my-projects");
+    }
+  }, [account, router]);
 
   const statistics = [
     {

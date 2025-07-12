@@ -65,6 +65,7 @@ export default function UpdateAccountModal({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["accounts"] });
       setIsDialogOpen(false);
+      toast.success("Project successfully created!");
     },
     onError: () => {
       toast.error("Something went wrong creating the account data!");

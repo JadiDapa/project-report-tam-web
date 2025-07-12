@@ -4,6 +4,7 @@ import { Accordion } from "@/components/ui/accordion";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
+import { useAccount } from "@/providers/AccountProvider";
 import useSidebarStore from "@/stores/SidebarStore";
 import { useClerk } from "@clerk/nextjs";
 import {
@@ -48,25 +49,21 @@ const adminLink = [
     name: "Accounts",
     url: "/accounts",
     Icon: Users,
-    public: true,
   },
   {
     name: "Projects",
     url: "/projects",
     Icon: ClipboardList,
-    public: true,
   },
   {
     name: "Daily Reports",
     url: "/daily-reports",
     Icon: Mailbox,
-    public: true,
   },
   {
     name: "Tickets",
     url: "/tickets",
     Icon: Ticket,
-    public: true,
   },
   // {
   //   name: "Evidence Alteration",
@@ -78,6 +75,7 @@ const adminLink = [
 
 export default function Sidebar() {
   const { signOut } = useClerk();
+  const { account } = useAccount();
   const { isSidebarOpen, closeSidebar } = useSidebarStore();
   const pathname = usePathname();
 
@@ -152,33 +150,37 @@ export default function Sidebar() {
                 </div>
               );
             })}
-            <Separator className="bg-secondary" />
+            {account?.Role.name === "Admin" && (
+              <>
+                <Separator className="bg-secondary" />
 
-            <p className="text-secondary mt-2 px-5 text-lg font-semibold">
-              Admin Menu
-            </p>
-            {adminLink.map((item) => {
-              return (
-                <div key={item.url}>
-                  <Link
-                    onClick={closeSidebar}
-                    key={item.url}
-                    href={item.url}
-                    className={cn(
-                      "text-secondary mt-1 flex w-full items-center justify-between rounded-lg px-5 py-2.5 duration-300",
-                      item.url !== "/" && pathname.startsWith(item.url)
-                        ? "bg-secondary text-primary shadow-sm"
-                        : "hover:bg-secondary/50 hover:text-secondary",
-                    )}
-                  >
-                    <div className="flex items-center justify-center gap-5">
-                      <item.Icon strokeWidth={1.8} size={24} />
-                      <div className="text-xl">{item.name}</div>
+                <p className="text-secondary mt-2 px-5 text-lg font-semibold">
+                  Admin Menu
+                </p>
+                {adminLink.map((item) => {
+                  return (
+                    <div key={item.url}>
+                      <Link
+                        onClick={closeSidebar}
+                        key={item.url}
+                        href={item.url}
+                        className={cn(
+                          "text-secondary mt-1 flex w-full items-center justify-between rounded-lg px-5 py-2.5 duration-300",
+                          item.url !== "/" && pathname.startsWith(item.url)
+                            ? "bg-secondary text-primary shadow-sm"
+                            : "hover:bg-secondary/50 hover:text-secondary",
+                        )}
+                      >
+                        <div className="flex items-center justify-center gap-5">
+                          <item.Icon strokeWidth={1.8} size={24} />
+                          <div className="text-xl">{item.name}</div>
+                        </div>
+                      </Link>
                     </div>
-                  </Link>
-                </div>
-              );
-            })}
+                  );
+                })}
+              </>
+            )}
             <Separator className="bg-secondary" />
             <div
               className={cn(

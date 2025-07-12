@@ -76,6 +76,7 @@ export default function CreateProjectModal({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["projects"] });
       setIsDialogOpen(false);
+      toast.success("Project successfully created!");
     },
     onError: () => {
       toast.error("Something went wrong creating the project data!");
