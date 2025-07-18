@@ -9,8 +9,8 @@ import CircularProgress from "@/components/root/CircularProgress";
 import { GripVertical, ListCheck, Info, UsersRound } from "lucide-react";
 import { statuses } from "../../projects/page";
 import { format } from "date-fns";
-import { TaskEvidenceType } from "@/lib/types/task-evidence";
 import Link from "next/link";
+import { TaskType } from "@/lib/types/task";
 
 export default function ProjectsDashboard() {
   const { account } = useAccount();
@@ -20,23 +20,25 @@ export default function ProjectsDashboard() {
     queryKey: ["projects", account?.id],
   });
 
-  function globalPercentage(
-    tasks: { TaskEvidences: TaskEvidenceType[]; quantity?: number }[],
-  ) {
+  function globalPercentage(tasks: TaskType[]) {
     if (!tasks || tasks.length === 0) return 0;
 
-    const totalPercentage = tasks.reduce((sum, task) => {
+    // Exclude tasks with item === "Documentation"
+    const validTasks = tasks.filter((task) => task.item !== "Documentation");
+    if (validTasks.length === 0) return 0;
+
+    const totalPercentage = validTasks.reduce((sum, task) => {
       const filledEvidences = task.TaskEvidences.filter(
         (e) => e.TaskEvidenceImages.length > 0,
       ).length;
       const taskCompletion = Math.min(
         filledEvidences / (task.quantity ?? 1),
         1,
-      ); // Cap at 100%
+      );
       return sum + taskCompletion;
     }, 0);
 
-    const averagePercentage = (totalPercentage / tasks.length) * 100;
+    const averagePercentage = (totalPercentage / validTasks.length) * 100;
     return Number(averagePercentage.toFixed(1));
   }
 

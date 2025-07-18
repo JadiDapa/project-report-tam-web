@@ -150,7 +150,7 @@ export default function Sidebar() {
                 </div>
               );
             })}
-            {account?.Role.name === "Admin" && (
+            {account?.Role.name === "Administrator" && (
               <>
                 <Separator className="bg-secondary" />
 

@@ -59,20 +59,26 @@ export default function ProjectDetail() {
   const tasks = project?.Tasks;
 
   function globalPercentage() {
-    if (!project?.Tasks || project?.Tasks.length === 0) return 0;
+    if (!project?.Tasks || project.Tasks.length === 0) return 0;
 
-    const totalPercentage = project?.Tasks.reduce((sum, task) => {
+    // Exclude tasks with item === "Documentation"
+    const validTasks = project.Tasks.filter(
+      (task) => task.item !== "Documentation",
+    );
+    if (validTasks.length === 0) return 0;
+
+    const totalPercentage = validTasks.reduce((sum, task) => {
       const filledEvidences = task.TaskEvidences.filter(
         (e) => e.TaskEvidenceImages.length > 0,
       ).length;
       const taskCompletion = Math.min(
         filledEvidences / (task.quantity ?? 1),
         1,
-      ); // Cap at 100%
+      );
       return sum + taskCompletion;
     }, 0);
 
-    const averagePercentage = (totalPercentage / project.Tasks.length) * 100;
+    const averagePercentage = (totalPercentage / validTasks.length) * 100;
     return Number(averagePercentage.toFixed(1));
   }
 

@@ -12,20 +12,16 @@ import {
   UsersRound,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-// import LayoutSwitch from "@/components/root/LayoutSwitch";
-// import DataTable from "@/components/root/DataTable";
 import ExcelExport from "@/components/root/ExcelExport";
-// import SearchDataTable from "@/components/root/SearchDataTable";
 import { getAllProjects } from "@/lib/networks/project";
-// import { projectColumn } from "@/lib/columns/project";
 import CreateProjectModal from "@/components/root/project/CreateProjectModal";
 import Link from "next/link";
 import CircularProgress from "@/components/root/CircularProgress";
-import { TaskEvidenceType } from "@/lib/types/task-evidence";
 import { format } from "date-fns";
 import { useAccount } from "@/providers/AccountProvider";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { TaskType } from "@/lib/types/task";
 
 export const statuses = [
   {
@@ -93,23 +89,25 @@ export default function ProjectsDashboard() {
     },
   ];
 
-  function globalPercentage(
-    tasks: { TaskEvidences: TaskEvidenceType[]; quantity?: number }[],
-  ) {
+  function globalPercentage(tasks: TaskType[]) {
     if (!tasks || tasks.length === 0) return 0;
 
-    const totalPercentage = tasks.reduce((sum, task) => {
+    // Exclude tasks with item === "Documentation"
+    const validTasks = tasks.filter((task) => task.item !== "Documentation");
+    if (validTasks.length === 0) return 0;
+
+    const totalPercentage = validTasks.reduce((sum, task) => {
       const filledEvidences = task.TaskEvidences.filter(
         (e) => e.TaskEvidenceImages.length > 0,
       ).length;
       const taskCompletion = Math.min(
         filledEvidences / (task.quantity ?? 1),
         1,
-      ); // Cap at 100%
+      );
       return sum + taskCompletion;
     }, 0);
 
-    const averagePercentage = (totalPercentage / tasks.length) * 100;
+    const averagePercentage = (totalPercentage / validTasks.length) * 100;
     return Number(averagePercentage.toFixed(1));
   }
 

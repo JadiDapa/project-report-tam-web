@@ -83,20 +83,28 @@ export const projectColumn: ColumnDef<ProjectType>[] = [
         const tasks = getValue() as TaskType[];
         if (!tasks || tasks.length === 0) return 0;
 
-        const totalPercentage = tasks.reduce((sum, task) => {
+        // Filter out tasks with item === "Documentation"
+        const validTasks = tasks.filter(
+          (task) => task.item !== "Documentation",
+        );
+        if (validTasks.length === 0) return 0;
+
+        const totalPercentage = validTasks.reduce((sum, task) => {
           const filledEvidences = task.TaskEvidences.filter(
             (e) => e.TaskEvidenceImages.length > 0,
           ).length;
+
           const taskCompletion = Math.min(
             filledEvidences / (task.quantity ?? 1),
             1,
-          ); // Cap at 100%
+          );
           return sum + taskCompletion;
         }, 0);
 
-        const averagePercentage = (totalPercentage / tasks.length) * 100;
+        const averagePercentage = (totalPercentage / validTasks.length) * 100;
         return Math.round(averagePercentage);
       }
+
       return (
         <div className="text-base">{Math.floor(globalPercentage())} %</div>
       );
