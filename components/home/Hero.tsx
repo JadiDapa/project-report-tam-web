@@ -41,7 +41,7 @@ export default function Hero() {
             {/* Action buttons */}
             <div className="flex justify-center gap-4 lg:justify-normal lg:gap-6">
               <a
-                href="https://expo.dev/artifacts/eas/s52z4JgGSJnoxyfMfN6bJr.apk"
+                href="https://expo.dev/artifacts/eas/8Q8smmPFYZDbGV2VbD3Vnh.apk"
                 download
                 className="bg-primary group border-primary hover:text-primary flex w-36 items-center justify-center gap-3 rounded-full border-2 py-2 text-white transition-all hover:bg-transparent lg:w-44"
               >
