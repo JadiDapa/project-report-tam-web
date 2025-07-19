@@ -32,7 +32,7 @@ export default function Navbar() {
           Contact
         </Link>
         <a
-          href="https://expo.dev/artifacts/eas/8Q8smmPFYZDbGV2VbD3Vnh.apk"
+          href="https://expo.dev/artifacts/eas/ouKQ29pp7DZU5ZBXZZy8vh.apk"
           download
           className="font-medium text-blue-500 transition-colors hover:text-blue-600"
         >
