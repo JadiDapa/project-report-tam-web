@@ -1,8 +1,8 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useParams } from "next/navigation";
-import { getProjectById } from "@/lib/networks/project";
+import { useParams, useRouter } from "next/navigation";
+import { deleteProject, getProjectById } from "@/lib/networks/project";
 import ExcelExport from "@/components/root/ExcelExport";
 import DataTable from "@/components/root/DataTable";
 import { taskColumn } from "@/lib/columns/task";
@@ -19,6 +19,7 @@ import {
   CalendarCheck,
   CalendarX,
   Pencil,
+  Plus,
 } from "lucide-react";
 import { format } from "date-fns";
 import Image from "next/image";
@@ -30,18 +31,20 @@ import { createTasks } from "@/lib/networks/task";
 import { CreateTaskType } from "@/lib/types/task";
 import { toast } from "sonner";
 import UpdateProjectModal from "@/components/root/project/UpdateProjectModal";
+import CreateTaskModal from "@/components/root/project/task/CreateTaskModal";
+import DeleteDialog from "@/components/root/DeleteDialog";
 
 export default function ProjectDetail() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
 
   const queryClient = useQueryClient();
-
+  const router = useRouter();
   const { id } = useParams();
 
   const { data: project } = useQuery({
     queryFn: () => getProjectById(id as string),
-    queryKey: ["project", id],
+    queryKey: ["projects", id],
   });
 
   const { mutate: onCreateTasks } = useMutation({
@@ -133,8 +136,22 @@ export default function ProjectDetail() {
     } finally {
       setUploading(false);
       event.target.value = ""; // Clear file input
+      queryClient.invalidateQueries({ queryKey: ["projects", id] });
     }
   };
+
+  const { mutateAsync: handleDelete, isPending: isLoading } = useMutation({
+    mutationFn: () => deleteProject(id as string),
+
+    onSuccess: () => {
+      toast.success("Task Successfully Removed!");
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
+      router.push("/projects");
+    },
+    onError: () => {
+      toast.error("Failed to Remove Task!");
+    },
+  });
 
   if (!project && !tasks) return null;
 
@@ -149,19 +166,24 @@ export default function ProjectDetail() {
           </p>
         </div>
         <div className="flex items-center gap-4 lg:gap-6">
+          <CreateTaskModal>
+            <p className="bg-primary text-secondary flex place-items-center gap-4 rounded-md px-4 py-1.5 text-lg shadow-sm">
+              <p>Create Task</p>
+              <Plus size={24} />
+            </p>
+          </CreateTaskModal>
           <UpdateProjectModal project={project}>
             <div className="bg-primary text-secondary flex place-items-center gap-4 rounded-md px-4 py-1.5 text-lg shadow-sm">
-              <p>Modify Project</p>
+              <p>Modify</p>
               <Pencil size={24} />
             </div>
           </UpdateProjectModal>
-          <ExcelExport data={project.Tasks} filename="tam-projects.xlsx" />
           <Button
             onClick={handleUploadClick}
             className="bg-primary hover:text-primary border-primary h-10 items-center gap-4 border text-white hover:bg-transparent"
             disabled={uploading}
           >
-            <p className="text-lg">Upload Excel</p>
+            <p className="text-lg">Import Excel</p>
             <BetweenHorizonalStart className="size-5" />
 
             <input
@@ -172,6 +194,13 @@ export default function ProjectDetail() {
               className="hidden"
             />
           </Button>
+          <ExcelExport data={project.Tasks} filename="tam-projects.xlsx" />
+          <DeleteDialog
+            label="Delete Project"
+            name={`${project.title}`}
+            onDelete={handleDelete}
+            isLoading={isLoading}
+          />
         </div>
       </div>
 

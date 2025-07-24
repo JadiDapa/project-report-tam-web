@@ -1,9 +1,13 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import ExcelExport from "@/components/root/ExcelExport";
-import { getTaskById, getTaskReportEvidences } from "@/lib/networks/task";
+import {
+  deleteTask,
+  getTaskById,
+  getTaskReportEvidences,
+} from "@/lib/networks/task";
 import Image from "next/image";
 import { format } from "date-fns";
 import { Calendar, ImageDown } from "lucide-react";
@@ -16,6 +20,9 @@ import {
 import { Pie, Label, PieChart } from "recharts";
 import EvidenceDetailModal from "@/components/root/project/evidence/EvidenceDetailModal";
 import { Button } from "@/components/ui/button";
+import DeleteDialog from "@/components/root/DeleteDialog";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 const chartConfig = {
   completed: { label: "Completed", color: "var(--chart-1)" },
@@ -23,11 +30,29 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export default function ProjectDetail() {
+  const queryClient = useQueryClient();
+  const router = useRouter();
+
   const { id } = useParams();
 
   const { data: task } = useQuery({
     queryFn: () => getTaskById(id as string),
     queryKey: ["tasks", id],
+  });
+
+  const projectId = task?.Project?.id || "";
+
+  const { mutateAsync: handleDelete, isPending: isLoading } = useMutation({
+    mutationFn: () => deleteTask(id as string),
+    onSuccess: () => {
+      toast.success("Task Successfully Removed!");
+
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      router.push("/projects/" + projectId); // redirect after delete
+    },
+    onError: () => {
+      toast.error("Failed to Remove Task!");
+    },
   });
 
   if (!task) return null;
@@ -96,17 +121,25 @@ export default function ProjectDetail() {
         {/* Left Section (Task Info) */}
         <div className="flex-1 rounded-lg bg-white p-4 shadow-lg sm:p-6">
           <div className="flex h-full flex-col justify-between">
-            <div>
-              <p className="text-sm font-semibold text-gray-600">Task:</p>
-              <h1 className="text-primary text-2xl font-bold capitalize">
-                {`${task.type} - ${task.item}`}
-              </h1>
-              <p className="text-sm font-medium text-gray-700">
-                From Project: {task.Project.title}
-              </p>
-              <p className="mt-4 text-sm text-gray-600">
-                {task.description || "No Description Provided"}
-              </p>
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-sm font-semibold text-gray-600">Task:</p>
+                <h1 className="text-primary text-2xl font-bold capitalize">
+                  {`${task.type} - ${task.item}`}
+                </h1>
+                <p className="text-sm font-medium text-gray-700">
+                  From Project: {task.Project.title}
+                </p>
+                <p className="mt-4 text-sm text-gray-600">
+                  {task.description || "No Description Provided"}
+                </p>
+              </div>
+              <DeleteDialog
+                label="Delete This Task"
+                name={`${task.type} - ${task.item}`}
+                onDelete={handleDelete}
+                isLoading={isLoading}
+              />
             </div>
             <div className="mt-6 flex items-center gap-2 text-sm text-gray-600">
               <Calendar className="size-5 shrink-0" />

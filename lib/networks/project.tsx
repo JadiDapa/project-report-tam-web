@@ -65,13 +65,7 @@ export async function updateProject(id: string, values: CreateProjectType) {
 }
 
 // Delete a project
-export async function deleteProject(
-  id: string,
-  getToken: () => Promise<string | null>,
-) {
-  const token = await getToken();
-  const { data } = await axiosInstance.delete(`/projects/${id}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+export async function deleteProject(id: string) {
+  const { data } = await axiosInstance.delete(`/projects/${id}`);
   return data.data;
 }
