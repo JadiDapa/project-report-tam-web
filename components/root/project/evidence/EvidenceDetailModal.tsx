@@ -77,6 +77,17 @@ export default function EvidenceDetailModal({
     },
   });
 
+  // const { mutateAsync: handleDelete, isPending: isLoading } = useMutation({
+  //   mutationFn: () => deleteTaskEvidence(evidence!.id as unknown as string),
+  //   onSuccess: () => {
+  //     toast.success("Task Evidence Successfully Removed!");
+  //     queryClient.invalidateQueries({ queryKey: ["tasks", taskId] });
+  //   },
+  //   onError: () => {
+  //     toast.error("Failed to Remove Task Evidence!");
+  //   },
+  // });
+
   const onSubmit = () => {
     onCreateTaskEvidence({
       title: evidence?.title ?? "",
@@ -90,7 +101,15 @@ export default function EvidenceDetailModal({
       <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl font-semibold">
-            Task Evidence
+            <div className="flex items-center justify-between">
+              <p>Task Evidence</p>
+              {/* <DeleteDialog
+                label="Delete This Task"
+                name={`${task.type} - ${task.item}`}
+                onDelete={handleDelete}
+                isLoading={isLoading}
+              /> */}
+            </div>
           </DialogTitle>
           <div className="">
             <p className="text-primary text-xl font-medium capitalize">

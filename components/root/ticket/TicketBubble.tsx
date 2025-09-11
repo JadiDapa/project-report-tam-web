@@ -69,16 +69,16 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
             <p className="text-sm leading-relaxed">{message.content}</p>
           )}
 
-          {/* {message.type === "image" && message.imageUrl && (
-            <div className="overflow-hidden rounded-lg relative">
+          {message.type === "image" && message.image && (
+            <div className="relative overflow-hidden rounded-lg">
               <Image
-                src={message.image || ""}
+                src={message.image as string}
                 alt="Shared image"
                 className="h-auto max-w-full object-cover"
                 style={{ maxHeight: "200px" }}
               />
             </div>
-          )} */}
+          )}
         </div>
 
         {isCurrentAccount && (

@@ -28,7 +28,7 @@ export function AccountProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
 
   const userEmail = user?.primaryEmailAddress?.emailAddress ?? "";
-  const isLoginPage = pathname === "/login" || pathname === "/sign-in";
+  const isLoginPage = pathname === "/login" || pathname === "/register";
 
   const isRootPage = pathname === "/";
 

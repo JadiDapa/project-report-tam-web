@@ -29,7 +29,21 @@ export async function getTicketById(id: string) {
 }
 
 export async function createTicket(values: CreateTicketType) {
-  const { data } = await axiosInstance.post("/tickets", values);
+  const formData = new FormData();
+  formData.append("title", values.title);
+  formData.append("priority", values.priority!);
+  formData.append("description", values.description!);
+  formData.append("requester", values.requester!.toString());
+  if (values.image) {
+    formData.append("image", values.image);
+  }
+
+  const { data } = await axiosInstance.post("/tickets", formData, {
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "multipart/form-data",
+    },
+  });
 
   return data.data;
 }

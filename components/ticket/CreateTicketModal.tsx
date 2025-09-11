@@ -36,28 +36,33 @@ import { CreateTicketType } from "@/lib/types/ticket";
 import { createTicket } from "@/lib/networks/ticket";
 import { useAccount } from "@/providers/AccountProvider";
 import { Textarea } from "../ui/textarea";
+import Image from "next/image";
 
 const ticketSchema = z.object({
   title: z.string().min(1, "Ticket Name is required"),
   priority: z.enum(["low", "normal", "high"]),
   description: z.string().min(1, "Description is required"),
+  image: z
+    .any()
+    .refine(
+      (file) => file instanceof File || file === null || file === undefined,
+      "Invalid file",
+    )
+    .optional(),
 });
 
 const priorities = [
   {
     label: "Low",
     value: "low",
-    bgColor: "bg-success-200 text-success-700 border-success-500",
   },
   {
     label: "Medium",
-    value: "medium",
-    bgColor: "bg-warning-200 text-warning-700 border-warning-500",
+    value: "normal",
   },
   {
     label: "High",
     value: "high",
-    bgColor: "bg-error-200 text-error-700 border-error-500",
   },
 ];
 
@@ -69,6 +74,7 @@ export default function CreateTicketModal({
   children,
 }: CreateTicketModalProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [preview, setPreview] = useState<string | null>(null);
 
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -80,17 +86,15 @@ export default function CreateTicketModal({
       title: "",
       description: "",
       priority: "low",
+      image: null,
     },
   });
 
   const { mutate: onCreateTicket, isPending } = useMutation({
     mutationFn: (values: CreateTicketType) => createTicket(values),
-
     onSuccess: (ticket) => {
       toast.success("Ticket successfully created!");
       queryClient.invalidateQueries({ queryKey: ["tickets"] });
-
-      // Redirect to the new ticket page
       router.push(`/your-ticket/${ticket.id}`);
     },
 
@@ -106,15 +110,16 @@ export default function CreateTicketModal({
       requester: account!.id,
     });
     setIsDialogOpen(false);
+    setPreview(null);
   }
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger>{children}</DialogTrigger>
-      <DialogContent className="">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle className="text-2xl font-medium">
-            Add a New Account
+            Add a New Ticket
           </DialogTitle>
           <Form {...form}>
             <form
@@ -122,6 +127,7 @@ export default function CreateTicketModal({
               className="flex flex-wrap gap-12 pt-4 lg:gap-4"
             >
               <div className="flex-1 space-y-2 lg:space-y-4">
+                {/* Title */}
                 <FormField
                   control={form.control}
                   name="title"
@@ -136,6 +142,7 @@ export default function CreateTicketModal({
                   )}
                 />
 
+                {/* Priority */}
                 <FormField
                   control={form.control}
                   name="priority"
@@ -148,14 +155,14 @@ export default function CreateTicketModal({
                       >
                         <FormControl>
                           <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select Division" />
+                            <SelectValue placeholder="Select Priority" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
                           {priorities?.map((priority) => (
                             <SelectItem
                               key={priority.value}
-                              value={priority.value.toString()}
+                              value={priority.value}
                             >
                               {priority.label}
                             </SelectItem>
@@ -167,16 +174,54 @@ export default function CreateTicketModal({
                   )}
                 />
 
+                {/* Description */}
                 <FormField
                   control={form.control}
                   name="description"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Description</FormLabel>
-                      <FormControl className="relative">
+                      <FormControl>
                         <Textarea className="w-full" {...field} />
                       </FormControl>
                       <FormMessage className="text-start" />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Image Upload with Preview */}
+                <FormField
+                  control={form.control}
+                  name="image"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Upload Image</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0] ?? null;
+                            field.onChange(file);
+                            if (file) {
+                              setPreview(URL.createObjectURL(file));
+                            } else {
+                              setPreview(null);
+                            }
+                          }}
+                        />
+                      </FormControl>
+                      {preview && (
+                        <div className="relative mt-2 h-40 w-60 rounded-md border">
+                          <Image
+                            src={preview}
+                            alt="Preview"
+                            fill
+                            className="object-contain object-center"
+                          />
+                        </div>
+                      )}
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -193,7 +238,7 @@ export default function CreateTicketModal({
                     <ClipLoader
                       color={"#fff"}
                       loading={isPending}
-                      size={150}
+                      size={20}
                       aria-label="Loading Spinner"
                       data-testid="loader"
                     />

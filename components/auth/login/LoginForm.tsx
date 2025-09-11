@@ -74,17 +74,19 @@ export default function LoginForm() {
             control={form.control}
             name="email"
             render={({ field }) => (
-              <FormItem className="relative">
-                <User
-                  size={24}
-                  className="text-primary absolute top-1/2 left-3 -translate-y-1/2"
-                />
+              <FormItem>
                 <FormControl>
-                  <Input
-                    className="border-primary h-10 w-full rounded-lg border-2 ps-12 lg:h-12"
-                    placeholder="Email"
-                    {...field}
-                  />
+                  <div className="relative">
+                    <User
+                      size={24}
+                      className="text-primary absolute top-1/2 left-3 -translate-y-1/2"
+                    />
+                    <Input
+                      className="border-primary h-10 w-full rounded-lg border-2 ps-12 lg:h-12"
+                      placeholder="Email"
+                      {...field}
+                    />
+                  </div>
                 </FormControl>
                 <FormMessage className="text-start" />
               </FormItem>
@@ -95,24 +97,26 @@ export default function LoginForm() {
             control={form.control}
             name="password"
             render={({ field }) => (
-              <FormItem className="relative">
-                <Lock
-                  size={24}
-                  className="text-primary absolute top-1/2 left-3 -translate-y-1/2"
-                />
-                <div
-                  onClick={() => setIsVisible(!isVisible)}
-                  className="absolute top-1/2 right-3 -translate-y-1/2"
-                >
-                  {isVisible ? <Eye size={24} /> : <EyeClosed size={24} />}
-                </div>
+              <FormItem>
                 <FormControl>
-                  <Input
-                    className="border-primary h-10 w-full rounded-lg border-2 ps-12 lg:h-12"
-                    placeholder="Password"
-                    type={isVisible ? "text" : "password"}
-                    {...field}
-                  />
+                  <div className="relative">
+                    <Lock
+                      size={24}
+                      className="text-primary absolute top-1/2 left-3 -translate-y-1/2"
+                    />
+                    <div
+                      onClick={() => setIsVisible(!isVisible)}
+                      className="absolute top-1/2 right-3 -translate-y-1/2"
+                    >
+                      {isVisible ? <Eye size={24} /> : <EyeClosed size={24} />}
+                    </div>
+                    <Input
+                      className="border-primary h-10 w-full rounded-lg border-2 ps-12 lg:h-12"
+                      placeholder="Password"
+                      type={isVisible ? "text" : "password"}
+                      {...field}
+                    />
+                  </div>
                 </FormControl>
                 <FormMessage className="text-start" />
               </FormItem>

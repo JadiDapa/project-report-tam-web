@@ -73,13 +73,7 @@ export async function updateTaskEvidence(
 }
 
 // Delete a TaskEvidence
-export async function deleteTaskEvidence(
-  id: string,
-  getToken: () => Promise<string | null>,
-) {
-  const token = await getToken();
-  const { data } = await axiosInstance.delete(`/task-evidences/${id}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+export async function deleteTaskEvidence(id: string) {
+  const { data } = await axiosInstance.delete(`/task-evidences/${id}`);
   return data.data;
 }

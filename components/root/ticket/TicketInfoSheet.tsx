@@ -52,6 +52,7 @@ import { cn } from "@/lib/utils";
 import { TicketType } from "@/lib/types/ticket";
 import { useQuery } from "@tanstack/react-query";
 import { getAllAccounts } from "@/lib/networks/account";
+import { useAccount } from "@/providers/AccountProvider";
 
 const statusOptions = [
   { value: "open", label: "Open" },
@@ -318,6 +319,12 @@ export default function TicketInfoSheet({
   const handleHandlerUpdate = (handlerId: number) =>
     handleUpdate({ handlerId });
 
+  const { account } = useAccount();
+
+  const isTicketManager = account?.Role?.Features?.some(
+    (feature) => feature.name === "Manage Ticket",
+  );
+
   return (
     <Sheet>
       <SheetTrigger asChild>{children}</SheetTrigger>
@@ -355,10 +362,12 @@ export default function TicketInfoSheet({
                     >
                       {ticket.status}
                     </Badge>
-                    <UpdateStatusForm
-                      ticket={ticket}
-                      onUpdate={handleStatusUpdate}
-                    />
+                    {isTicketManager && (
+                      <UpdateStatusForm
+                        ticket={ticket}
+                        onUpdate={handleStatusUpdate}
+                      />
+                    )}
                   </div>
                 )}
               </div>
@@ -432,10 +441,12 @@ export default function TicketInfoSheet({
                     />
                     Handler
                   </CardTitle>
-                  <UpdateHandlerForm
-                    ticket={ticket}
-                    onUpdate={handleHandlerUpdate}
-                  />
+                  {isTicketManager && (
+                    <UpdateHandlerForm
+                      ticket={ticket}
+                      onUpdate={handleHandlerUpdate}
+                    />
+                  )}
                 </CardHeader>
                 <CardContent className="pt-0">
                   {ticket.Handler ? (

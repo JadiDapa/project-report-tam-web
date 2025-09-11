@@ -65,12 +65,12 @@ const adminLink = [
     url: "/tickets",
     Icon: Ticket,
   },
-  // {
-  //   name: "Evidence Alteration",
-  //   url: "/evidence-alteration",
-  //   Icon: Image,
-  //   public: true,
-  // },
+  {
+    name: "Evidence Alteration",
+    url: "/evidence-alteration",
+    Icon: Image,
+    public: true,
+  },
 ];
 
 export default function Sidebar() {

@@ -4,6 +4,21 @@ import { useAccount } from "@/providers/AccountProvider";
 import Image from "next/image";
 import Link from "next/link";
 
+const links = [
+  {
+    name: "Home",
+    url: "/",
+  },
+  {
+    name: "Tickets",
+    url: "/your-ticket",
+  },
+  {
+    name: "Contact",
+    url: "/contact",
+  },
+];
+
 export default function Navbar() {
   const { account } = useAccount();
 
@@ -19,22 +34,18 @@ export default function Navbar() {
       </div>
 
       <nav className="hidden items-center space-x-8 md:flex">
-        <Link
-          href="#"
-          className="font-medium text-gray-600 transition-colors hover:text-gray-900"
-        >
-          Home
-        </Link>
-        <Link
-          href="#"
-          className="font-medium text-gray-600 transition-colors hover:text-gray-900"
-        >
-          Contact
-        </Link>
+        {links.map((link) => (
+          <Link
+            key={link.name}
+            href={link.url}
+            className="font-medium text-gray-600 transition-colors hover:text-gray-900"
+          >
+            {link.name}
+          </Link>
+        ))}
         <a
           href="https://expo.dev/artifacts/eas/ouKQ29pp7DZU5ZBXZZy8vh.apk"
-          download
-          className="font-medium text-blue-500 transition-colors hover:text-blue-600"
+          className="font-medium text-gray-600 transition-colors hover:text-gray-900"
         >
           Download App
         </a>

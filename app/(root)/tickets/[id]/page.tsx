@@ -8,24 +8,25 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import Image from "next/image";
-import { Info, Mic, PaperclipIcon, Search, Send, XIcon } from "lucide-react";
-import { format } from "date-fns";
 import {
   CreateTicketMessageType,
   TicketMessageType,
 } from "@/lib/types/ticket-message";
-import { Input } from "@/components/ui/input";
-import TicketInfoSheet from "@/components/root/ticket/TicketInfoSheet";
 import { CreateTicketType } from "@/lib/types/ticket";
 import { toast } from "sonner";
 import { getAllAccounts } from "@/lib/networks/account";
 import { socket } from "@/lib/socket/ticket-message";
 import { useAccount } from "@/providers/AccountProvider";
+import { ImagePreview } from "@/components/ticket/ImagePreview";
+import { MessageInput } from "@/components/ticket/MessageInput";
+import { ChatHeader } from "@/components/ticket/ChatHeader";
+import { SystemMessage } from "@/components/ticket/SystemMessage";
+import { MessageBubble } from "@/components/ticket/MessageBubble";
 
 export default function TicketDetail() {
   const [messageText, setMessageText] = useState("");
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const { id } = useParams();
   const queryClient = useQueryClient();
@@ -100,7 +101,7 @@ export default function TicketDetail() {
     onCreateTicketMessage(newMessage);
   };
 
-  const onTicketUpdate = async (status: string, handlerId: number) => {
+  const handleTicketUpdate = async (status: string, handlerId: number) => {
     const oldStatus = ticket!.status;
     const oldHandlerId = ticket!.handler;
 
@@ -149,40 +150,26 @@ export default function TicketDetail() {
     }
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedImage(file);
+      setPreviewUrl(URL.createObjectURL(file));
+    }
+  };
+
   if (!ticket) {
     return <div>Loading...</div>;
   }
 
+  const profileImage =
+    ticket.Requester.image ??
+    "https://st3.depositphotos.com/6672868/13701/v/450/depositphotos_137014128-stock-illustration-user-profile-icon.jpg";
+
   return (
     <section className="relative flex h-[89vh] w-[105%] -translate-x-6 flex-col">
       {/* Header */}
-      <div className="sticky top-0 z-10 flex justify-between border-b bg-white px-6 py-2">
-        <div className="flex gap-6">
-          <div className="relative size-10 overflow-hidden rounded-full border">
-            <Image
-              src={
-                ticket.Requester.image ||
-                "https://st3.depositphotos.com/6672868/13701/v/450/depositphotos_137014128-stock-illustration-user-profile-icon.jpg"
-              }
-              alt={ticket.Requester.fullname}
-              fill
-              className="object-cover object-center"
-            />
-          </div>
-          <div>
-            <h2 className="text-xl font-semibold">{ticket.title}</h2>
-            <p className="font-medium">
-              Requested By: {ticket.Requester.fullname}
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-6">
-          <TicketInfoSheet ticket={ticket} onTicketUpdate={onTicketUpdate}>
-            <Info className="size-6" />
-          </TicketInfoSheet>
-          <Search className="size-6" />
-        </div>
-      </div>
+      <ChatHeader ticket={ticket} onTicketUpdate={handleTicketUpdate} />
 
       {/* Message List */}
       <div className="flex-1 overflow-y-auto bg-white px-6 py-6">
@@ -194,96 +181,27 @@ export default function TicketDetail() {
                 prevMessage && prevMessage.Account.id === message.Account.id;
               const isCurrentUser = message.Account.id === account?.id;
 
-              const profileImage =
-                ticket.Requester.image ||
-                "https://st3.depositphotos.com/6672868/13701/v/450/depositphotos_137014128-stock-illustration-user-profile-icon.jpg";
-
               if (
                 ["status-change", "assign-handler"].includes(message.type || "")
               ) {
-                const textColor =
-                  message.type === "assign-handler"
-                    ? "text-primary"
-                    : "text-slate-400";
                 return (
-                  <div key={message.id}>
-                    <p
-                      className={`font-cereal-medium py-4 text-center capitalize ${textColor}`}
-                    >
-                      --- {message.content} ---
-                    </p>
-                  </div>
+                  <SystemMessage
+                    key={message.id}
+                    content={message.content}
+                    type={message.type!}
+                  />
                 );
               }
 
               return (
-                <div
+                <MessageBubble
                   key={message.id}
-                  className={`flex w-fit max-w-[90%] gap-2 rounded-lg ${
-                    isCurrentUser ? "self-end" : "self-start"
-                  } ${isSameSender ? "mt-1" : "mt-6"}`}
-                >
-                  {!isSameSender && (
-                    <div
-                      className={`relative size-10 overflow-hidden rounded-full border ${
-                        isCurrentUser ? "order-2" : "order-1"
-                      }`}
-                    >
-                      <Image
-                        src={profileImage}
-                        alt={ticket.Requester.fullname}
-                        fill
-                        className="object-cover object-center"
-                      />
-                    </div>
-                  )}
-
-                  <div
-                    className={`w-fit max-w-[90%] rounded-lg px-4 py-3 ${
-                      isCurrentUser
-                        ? "bg-primary order-1"
-                        : "order-2 bg-sky-400"
-                    } ${isSameSender && isCurrentUser ? "mr-12" : ""} ${
-                      isSameSender && !isCurrentUser ? "ms-12" : ""
-                    }`}
-                  >
-                    {!isSameSender && (
-                      <div className="mb-2 flex flex-row items-center justify-between gap-16">
-                        <p className="font-cereal-medium text-white">
-                          {message.Account.fullname}
-                        </p>
-                        <div className="rounded-full bg-white px-4 py-[1px]">
-                          <p className="font-cereal-light text-xs text-slate-400">
-                            {message.Account.Role.name}
-                          </p>
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="flex flex-col gap-2">
-                      <p className="font-cereal-regular text-white">
-                        {message.content}
-                      </p>
-
-                      {message.image && (
-                        <Image
-                          src={
-                            typeof message.image === "string"
-                              ? message.image
-                              : URL.createObjectURL(message.image)
-                          }
-                          alt="Attached"
-                          width={250}
-                          height={250}
-                          className="rounded-md"
-                        />
-                      )}
-                      <p className="font-cereal-light self-end text-[10px] text-white">
-                        {format(message.createdAt, "HH:mm")}
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                  message={message}
+                  isCurrentUser={isCurrentUser}
+                  isSameSender={!!isSameSender}
+                  profileImage={profileImage}
+                  requesterName={ticket.Requester.fullname}
+                />
               );
             })}
           </div>
@@ -295,58 +213,23 @@ export default function TicketDetail() {
       </div>
 
       {/* Footer */}
-      {selectedImage && (
-        <div className="flex items-center gap-2 px-6 py-2">
-          <Image
-            src={URL.createObjectURL(selectedImage)}
-            alt="Preview"
-            width={200}
-            height={200}
-            className="rounded"
-          />
-          <XIcon
-            className="cursor-pointer"
-            onClick={() => setSelectedImage(null)}
-          />
-        </div>
-      )}
-
-      <div className="bottom-0 z-10 flex items-center gap-6 border-t bg-white px-6 py-2">
-        <div className="relative">
-          <PaperclipIcon strokeWidth={1.4} className="size-6 cursor-pointer" />
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) setSelectedImage(file);
-            }}
-            className="absolute inset-0 cursor-pointer opacity-0"
-          />
-        </div>
-
-        <Input
-          placeholder="Your Message"
-          className="flex-1 border-none shadow-none focus-visible:ring-0"
-          value={messageText}
-          onChange={(e) => setMessageText(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              handleSendMessage();
-            }
+      {previewUrl && (
+        <ImagePreview
+          previewUrl={previewUrl}
+          onRemove={() => {
+            setSelectedImage(null);
+            setPreviewUrl(null);
           }}
         />
+      )}
 
-        <div className="flex gap-2">
-          <Mic strokeWidth={1.4} className="size-6" />
-          <Send
-            strokeWidth={1.4}
-            className="size-6 cursor-pointer"
-            onClick={handleSendMessage}
-          />
-        </div>
-      </div>
+      {/* Input */}
+      <MessageInput
+        messageText={messageText}
+        setMessageText={setMessageText}
+        handleSendMessage={handleSendMessage}
+        handleImageChange={handleImageChange}
+      />
     </section>
   );
 }
