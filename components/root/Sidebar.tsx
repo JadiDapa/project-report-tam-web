@@ -51,10 +51,15 @@ const adminLink = [
     Icon: Users,
   },
   {
-    name: "Projects",
-    url: "/projects",
+    name: "Programs",
+    url: "/programs",
     Icon: ClipboardList,
   },
+  // {
+  //   name: "Projects",
+  //   url: "/projects",
+  //   Icon: ClipboardList,
+  // },
   {
     name: "Daily Reports",
     url: "/daily-reports",
@@ -65,12 +70,12 @@ const adminLink = [
     url: "/tickets",
     Icon: Ticket,
   },
-  {
-    name: "Evidence Alteration",
-    url: "/evidence-alteration",
-    Icon: Image,
-    public: true,
-  },
+  // {
+  //   name: "Evidence Alteration",
+  //   url: "/evidence-alteration",
+  //   Icon: Image,
+  //   public: true,
+  // },
 ];
 
 export default function Sidebar() {

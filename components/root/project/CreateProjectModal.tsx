@@ -43,6 +43,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { getAllAccounts } from "@/lib/networks/account";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { Textarea } from "@/components/ui/textarea";
+import { ProgramType } from "@/lib/types/program";
 
 const projectSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters"),
@@ -55,10 +56,13 @@ const projectSchema = z.object({
 
 interface CreateProjectModalProps {
   children: React.ReactNode;
+  programId: string;
+  program: ProgramType;
 }
 
 export default function CreateProjectModal({
   children,
+  programId,
 }: CreateProjectModalProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [openStart, setOpenStart] = useState(false);
@@ -99,6 +103,7 @@ export default function CreateProjectModal({
     onCreateProject({
       ...values,
       Employees: values.Employees.map((id) => ({ id: id })),
+      programId: Number(programId),
     });
   }
 

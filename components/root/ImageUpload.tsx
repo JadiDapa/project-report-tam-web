@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Upload, X } from "lucide-react";
+import { Upload, X, Download } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
 import {
@@ -10,6 +10,13 @@ import {
 } from "@/lib/networks/task-evidence-image";
 import { CreateTaskEvidenceImageType } from "@/lib/types/task-evidence-image";
 import { useQueryClient } from "@tanstack/react-query";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 interface UploadTaskEvidenceProps {
   uploadedEvidences: CreateTaskEvidenceImageType[];
@@ -30,6 +37,9 @@ export default function UploadTaskEvidence({
 }: UploadTaskEvidenceProps) {
   const [uploading, setUploading] = useState(false);
   const queryClient = useQueryClient();
+
+  // State for modal preview
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -71,6 +81,26 @@ export default function UploadTaskEvidence({
     }
   };
 
+  const handleDownload = async (src: string) => {
+    try {
+      const response = await fetch(src);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "evidence-image.jpg"; // filename
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Download failed:", err);
+      toast.error("Failed to download image");
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -94,7 +124,7 @@ export default function UploadTaskEvidence({
         {uploadedEvidences.map((evidence) => (
           <div
             key={evidence.id}
-            className="group relative h-32 w-32 overflow-hidden rounded border"
+            className="group relative h-32 w-32 cursor-pointer overflow-hidden rounded border"
           >
             <Image
               src={evidence.image as string}
@@ -103,6 +133,7 @@ export default function UploadTaskEvidence({
               height={128}
               unoptimized
               className="h-full w-full object-cover"
+              onClick={() => setPreviewImage(evidence.image as string)}
             />
             <button
               onClick={() =>
@@ -115,6 +146,34 @@ export default function UploadTaskEvidence({
           </div>
         ))}
       </div>
+
+      {/* Modal for preview */}
+      <Dialog open={!!previewImage} onOpenChange={() => setPreviewImage(null)}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Image Preview</DialogTitle>
+          </DialogHeader>
+          {previewImage && (
+            <div className="flex flex-col items-center gap-4">
+              <div className="bg-muted relative h-[70vh] w-full border">
+                <Image
+                  src={previewImage}
+                  alt="Preview"
+                  unoptimized
+                  fill
+                  className="max-h-[70vh] w-auto rounded-md object-contain"
+                />
+              </div>
+              <Button
+                variant="outline"
+                onClick={() => handleDownload(previewImage)}
+              >
+                <Download className="mr-2 h-4 w-4" /> Download
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
