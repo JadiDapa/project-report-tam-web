@@ -44,7 +44,7 @@ export default function Navbar() {
           </Link>
         ))}
         <a
-          href="https://expo.dev/artifacts/eas/ouKQ29pp7DZU5ZBXZZy8vh.apk"
+          href="https://expo.dev/artifacts/eas/3dn5tbVX1VjZash5kT5A33.apk"
           className="font-medium text-gray-600 transition-colors hover:text-gray-900"
         >
           Download App
