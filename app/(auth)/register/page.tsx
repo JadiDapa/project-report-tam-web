@@ -14,7 +14,7 @@ export default function RegisterPage() {
 
   useEffect(() => {
     if (isLoaded && user) {
-      router.replace("/my-projects"); // or your desired protected route
+      router.replace("/programs"); // or your desired protected route
     }
   }, [isLoaded, user, router]);
 

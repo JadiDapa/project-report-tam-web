@@ -52,11 +52,11 @@ export default function ProjectsDashboard() {
   });
   const router = useRouter();
 
-  useEffect(() => {
-    if (account && account.Role.name !== "Administrator") {
-      router.replace("/my-projects");
-    }
-  }, [account, router]);
+  // useEffect(() => {
+  //   if (account && account.Role.name !== "Administrator") {
+  //     router.replace("/programs");
+  //   }
+  // }, [account, router]);
 
   const statistics = [
     {

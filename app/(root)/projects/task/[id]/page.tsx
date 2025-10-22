@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/button";
 import DeleteDialog from "@/components/root/DeleteDialog";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useAccount } from "@/providers/AccountProvider";
 
 const chartConfig = {
   completed: { label: "Completed", color: "var(--chart-1)" },
@@ -32,13 +33,17 @@ const chartConfig = {
 export default function ProjectDetail() {
   const queryClient = useQueryClient();
   const router = useRouter();
-
+  const { account } = useAccount();
   const { id } = useParams();
 
   const { data: task } = useQuery({
     queryFn: () => getTaskById(id as string),
     queryKey: ["tasks", id],
   });
+
+  const isProjectManager = account?.Role?.Features?.some(
+    (feature) => feature.name === "Manage Project",
+  );
 
   const projectId = task?.Project?.id || "";
 
@@ -102,19 +107,21 @@ export default function ProjectDetail() {
             Taruna Anugrah Mandiri Project Task Detail
           </p>
         </div>
-        <div className="flex items-center gap-4 lg:gap-6">
-          <ExcelExport
-            data={task.TaskEvidences}
-            filename="tam-task-evidence.xlsx"
-          />
-          <Button
-            onClick={handleDownload}
-            className="bg-primary hover:text-primary border-primary h-10 items-center gap-4 border text-white hover:bg-transparent"
-          >
-            <p className="text-lg">Download Evidence</p>
-            <ImageDown className="size-5" />
-          </Button>
-        </div>
+        {isProjectManager && (
+          <div className="flex items-center gap-4 lg:gap-6">
+            <ExcelExport
+              data={task.TaskEvidences}
+              filename="tam-task-evidence.xlsx"
+            />
+            <Button
+              onClick={handleDownload}
+              className="bg-primary hover:text-primary border-primary h-10 items-center gap-4 border text-white hover:bg-transparent"
+            >
+              <p className="text-lg">Download Evidence</p>
+              <ImageDown className="size-5" />
+            </Button>
+          </div>
+        )}
       </div>
 
       <div className="flex flex-col gap-6 lg:flex-row">

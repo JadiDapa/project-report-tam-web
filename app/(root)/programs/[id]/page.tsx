@@ -61,11 +61,15 @@ export default function ProgramProjectsDashboard() {
     queryKey: ["programs", id],
   });
 
-  useEffect(() => {
-    if (account && account.Role.name !== "Administrator") {
-      router.replace("/my-projects");
-    }
-  }, [id, account, router]);
+  // useEffect(() => {
+  //   if (account && account.Role.name !== "Administrator") {
+  //     router.replace("/programs");
+  //   }
+  // }, [id, account, router]);
+
+  const isProjectManager = account?.Role?.Features?.some(
+    (feature) => feature.name === "Manage Project",
+  );
 
   function globalPercentage(tasks: TaskType[]) {
     if (!tasks || tasks.length === 0) return 0;
@@ -136,11 +140,11 @@ export default function ProgramProjectsDashboard() {
         </div>
         <div className="flex items-center gap-4 lg:gap-6">
           {/* <LayoutSwitch /> */}
-          {projects && (
+          {isProjectManager && projects && (
             <ExcelExport data={projects} filename="tam-projects.xlsx" />
           )}
 
-          {program && (
+          {isProjectManager && program && (
             <CreateProjectModal
               programId={id as string}
               program={(program as ProgramType) || []}

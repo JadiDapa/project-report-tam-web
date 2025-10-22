@@ -20,6 +20,7 @@ import ImageUploader from "../../ImageUpload";
 import { Calendar, Send, User } from "lucide-react";
 import { CreateTaskEvidenceImageType } from "@/lib/types/task-evidence-image";
 import { Input } from "@/components/ui/input";
+import { useAccount } from "@/providers/AccountProvider";
 
 interface EvidenceDetailModalProps {
   children: React.ReactNode;
@@ -39,7 +40,7 @@ export default function EvidenceDetailModal({
   >([]);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-
+  const { account } = useAccount();
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -76,6 +77,10 @@ export default function EvidenceDetailModal({
       toast.error("Failed to create Task Evidence");
     },
   });
+
+  const isProjectManager = account?.Role?.Features?.some(
+    (feature) => feature.name === "Manage Project",
+  );
 
   // const { mutateAsync: handleDelete, isPending: isLoading } = useMutation({
   //   mutationFn: () => deleteTaskEvidence(evidence!.id as unknown as string),
@@ -156,16 +161,18 @@ export default function EvidenceDetailModal({
                   </p>
                 </div>
 
-                <div
-                  onClick={() => setCreateEvidence(true)}
-                  className="bg-primary justify-center rounded-md px-2 py-1"
-                >
-                  <p className="font-cereal-regular text-sm text-white">
-                    {evidence.description
-                      ? "Edit Description"
-                      : "Add Description"}
-                  </p>
-                </div>
+                {isProjectManager && (
+                  <div
+                    onClick={() => setCreateEvidence(true)}
+                    className="bg-primary justify-center rounded-md px-2 py-1"
+                  >
+                    <p className="font-cereal-regular text-sm text-white">
+                      {evidence.description
+                        ? "Edit Description"
+                        : "Add Description"}
+                    </p>
+                  </div>
+                )}
               </div>
             )}
 

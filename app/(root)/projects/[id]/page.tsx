@@ -33,11 +33,14 @@ import { toast } from "sonner";
 import UpdateProjectModal from "@/components/root/project/UpdateProjectModal";
 import CreateTaskModal from "@/components/root/project/task/CreateTaskModal";
 import DeleteDialog from "@/components/root/DeleteDialog";
+import { useAccount } from "@/providers/AccountProvider";
+import { is } from "date-fns/locale";
 
 export default function ProjectDetail() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
 
+  const { account } = useAccount();
   const queryClient = useQueryClient();
   const router = useRouter();
   const { id } = useParams();
@@ -46,6 +49,10 @@ export default function ProjectDetail() {
     queryFn: () => getProjectById(id as string),
     queryKey: ["projects", id],
   });
+
+  const isProjectManager = account?.Role?.Features?.some(
+    (feature) => feature.name === "Manage Project",
+  );
 
   const { mutate: onCreateTasks } = useMutation({
     mutationFn: (values: CreateTaskType[]) => createTasks(values),
@@ -165,43 +172,45 @@ export default function ProjectDetail() {
             Taruna Anugrah Mandiri Project List
           </p>
         </div>
-        <div className="flex items-center gap-4 lg:gap-6">
-          <CreateTaskModal>
-            <p className="bg-primary text-secondary flex place-items-center gap-4 rounded-md px-4 py-1.5 text-lg shadow-sm">
-              <p>Create Task</p>
-              <Plus size={24} />
-            </p>
-          </CreateTaskModal>
-          <UpdateProjectModal project={project}>
-            <div className="bg-primary text-secondary flex place-items-center gap-4 rounded-md px-4 py-1.5 text-lg shadow-sm">
-              <p>Modify</p>
-              <Pencil size={24} />
-            </div>
-          </UpdateProjectModal>
-          <Button
-            onClick={handleUploadClick}
-            className="bg-primary hover:text-primary border-primary h-10 items-center gap-4 border text-white hover:bg-transparent"
-            disabled={uploading}
-          >
-            <p className="text-lg">Import Excel</p>
-            <BetweenHorizonalStart className="size-5" />
+        {isProjectManager && (
+          <div className="flex items-center gap-4 lg:gap-6">
+            <CreateTaskModal>
+              <p className="bg-primary text-secondary flex place-items-center gap-4 rounded-md px-4 py-1.5 text-lg shadow-sm">
+                <p>Create Task</p>
+                <Plus size={24} />
+              </p>
+            </CreateTaskModal>
+            <UpdateProjectModal project={project}>
+              <div className="bg-primary text-secondary flex place-items-center gap-4 rounded-md px-4 py-1.5 text-lg shadow-sm">
+                <p>Modify</p>
+                <Pencil size={24} />
+              </div>
+            </UpdateProjectModal>
+            <Button
+              onClick={handleUploadClick}
+              className="bg-primary hover:text-primary border-primary h-10 items-center gap-4 border text-white hover:bg-transparent"
+              disabled={uploading}
+            >
+              <p className="text-lg">Import Excel</p>
+              <BetweenHorizonalStart className="size-5" />
 
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".xlsx, .xls"
-              onChange={handleFileChange}
-              className="hidden"
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".xlsx, .xls"
+                onChange={handleFileChange}
+                className="hidden"
+              />
+            </Button>
+            <ExcelExport data={project.Tasks} filename="tam-projects.xlsx" />
+            <DeleteDialog
+              label="Delete Project"
+              name={`${project.title}`}
+              onDelete={handleDelete}
+              isLoading={isLoading}
             />
-          </Button>
-          <ExcelExport data={project.Tasks} filename="tam-projects.xlsx" />
-          <DeleteDialog
-            label="Delete Project"
-            name={`${project.title}`}
-            onDelete={handleDelete}
-            isLoading={isLoading}
-          />
-        </div>
+          </div>
+        )}
       </div>
 
       <div className="flex flex-col gap-6 lg:flex-row">

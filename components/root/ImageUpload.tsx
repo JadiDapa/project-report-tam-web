@@ -17,6 +17,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { useAccount } from "@/providers/AccountProvider";
 
 interface UploadTaskEvidenceProps {
   uploadedEvidences: CreateTaskEvidenceImageType[];
@@ -37,6 +38,11 @@ export default function UploadTaskEvidence({
 }: UploadTaskEvidenceProps) {
   const [uploading, setUploading] = useState(false);
   const queryClient = useQueryClient();
+  const { account } = useAccount();
+
+  const isProjectManager = account?.Role?.Features?.some(
+    (feature) => feature.name === "Manage Project",
+  );
 
   // State for modal preview
   const [previewImage, setPreviewImage] = useState<string | null>(null);
@@ -103,22 +109,24 @@ export default function UploadTaskEvidence({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold">Evidence Images</h2>
-        <label className="cursor-pointer">
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            disabled={uploading}
-            className="hidden"
-          />
-          <div className="bg-primary inline-flex items-center rounded-md px-3 py-2 text-white">
-            <Upload className="mr-2 h-4 w-4" />
-            Upload
-          </div>
-        </label>
-      </div>
+      {isProjectManager && (
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold">Evidence Images</h2>
+          <label className="cursor-pointer">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              disabled={uploading}
+              className="hidden"
+            />
+            <div className="bg-primary inline-flex items-center rounded-md px-3 py-2 text-white">
+              <Upload className="mr-2 h-4 w-4" />
+              Upload
+            </div>
+          </label>
+        </div>
+      )}
 
       <div className="flex flex-wrap gap-4">
         {uploadedEvidences.map((evidence) => (
@@ -135,14 +143,16 @@ export default function UploadTaskEvidence({
               className="h-full w-full object-cover"
               onClick={() => setPreviewImage(evidence.image as string)}
             />
-            <button
-              onClick={() =>
-                evidence.id !== undefined && handleDelete(evidence.id)
-              }
-              className="absolute top-1 right-1 rounded-full bg-white p-1 shadow hover:bg-red-100"
-            >
-              <X className="h-4 w-4 text-red-500" />
-            </button>
+            {isProjectManager && (
+              <button
+                onClick={() =>
+                  evidence.id !== undefined && handleDelete(evidence.id)
+                }
+                className="absolute top-1 right-1 rounded-full bg-white p-1 shadow hover:bg-red-100"
+              >
+                <X className="h-4 w-4 text-red-500" />
+              </button>
+            )}
           </div>
         ))}
       </div>

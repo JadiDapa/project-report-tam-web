@@ -25,6 +25,11 @@ import { toast } from "sonner";
 
 const userLink = [
   {
+    name: "Programs",
+    url: "/programs",
+    Icon: ClipboardList,
+  },
+  {
     name: "My Projects",
     url: "/my-projects",
     Icon: ClipboardPenLine,

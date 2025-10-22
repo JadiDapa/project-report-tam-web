@@ -37,13 +37,17 @@ export default function ProgramsDashboard() {
     queryFn: getAllPrograms,
     queryKey: ["programs"],
   });
-  const router = useRouter();
+  // const router = useRouter();
 
-  useEffect(() => {
-    if (account && account.Role.name !== "Administrator") {
-      router.replace("/my-programs");
-    }
-  }, [account, router]);
+  const isProjectManager = account?.Role?.Features?.some(
+    (feature) => feature.name === "Manage Project",
+  );
+
+  // useEffect(() => {
+  //   if (account && account.Role.name !== "Administrator") {
+  //     router.replace("/my-programs");
+  //   }
+  // }, [account, router]);
 
   return (
     <section className="flex w-full flex-col gap-4 py-6 lg:gap-6">
@@ -58,11 +62,13 @@ export default function ProgramsDashboard() {
         <div className="flex items-center gap-4 lg:gap-6">
           {/* <LayoutSwitch /> */}
 
-          <CreateProgramModal>
-            <div className="bg-primary text-secondary grid size-10 place-items-center gap-4 rounded-md text-lg shadow-sm">
-              <Plus size={24} />
-            </div>
-          </CreateProgramModal>
+          {isProjectManager && (
+            <CreateProgramModal>
+              <div className="bg-primary text-secondary grid size-10 place-items-center gap-4 rounded-md text-lg shadow-sm">
+                <Plus size={24} />
+              </div>
+            </CreateProgramModal>
+          )}
         </div>
       </div>
 
