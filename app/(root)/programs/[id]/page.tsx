@@ -19,8 +19,7 @@ import Link from "next/link";
 import CircularProgress from "@/components/root/CircularProgress";
 import { format } from "date-fns";
 import { useAccount } from "@/providers/AccountProvider";
-import { useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { TaskType } from "@/lib/types/task";
 import { getProgramById } from "@/lib/networks/program";
 import { ProgramType } from "@/lib/types/program";
@@ -49,7 +48,7 @@ export const statuses = [
 export default function ProgramProjectsDashboard() {
   const { id } = useParams();
   const { account } = useAccount();
-  const router = useRouter();
+  // const router = useRouter();
 
   const { data: projects } = useQuery({
     queryFn: () => getProjectsByProgramId(id as string),

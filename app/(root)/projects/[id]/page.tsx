@@ -34,7 +34,6 @@ import UpdateProjectModal from "@/components/root/project/UpdateProjectModal";
 import CreateTaskModal from "@/components/root/project/task/CreateTaskModal";
 import DeleteDialog from "@/components/root/DeleteDialog";
 import { useAccount } from "@/providers/AccountProvider";
-import { is } from "date-fns/locale";
 
 export default function ProjectDetail() {
   const fileInputRef = useRef<HTMLInputElement>(null);

@@ -3,8 +3,6 @@
 import { Calendar, Plus } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useAccount } from "@/providers/AccountProvider";
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { getAllPrograms } from "@/lib/networks/program";
 import CreateProgramModal from "@/components/root/program/CreateProgramModal";
 import { format } from "date-fns";
