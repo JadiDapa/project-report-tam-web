@@ -41,6 +41,8 @@ export default function ProgramsDashboard() {
     (feature) => feature.name === "Manage Project",
   );
 
+  const programsFiltered = isProjectManager ? programs : programs?.slice(0, -1);
+
   // useEffect(() => {
   //   if (account && account.Role.name !== "Administrator") {
   //     router.replace("/my-programs");
@@ -72,7 +74,7 @@ export default function ProgramsDashboard() {
 
       <div className="space-y-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {programs?.map((program) => (
+          {programsFiltered?.map((program) => (
             <Link
               href={`/programs/${program.id}`}
               key={program.title}
