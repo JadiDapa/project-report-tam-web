@@ -4,7 +4,6 @@ import {
   ClipboardCheck,
   ClipboardList,
   ClipboardX,
-  Clock,
   GripVertical,
   Info,
   ListCheck,
@@ -23,6 +22,9 @@ import { useParams } from "next/navigation";
 import { TaskType } from "@/lib/types/task";
 import { getProgramById } from "@/lib/networks/program";
 import { ProgramType } from "@/lib/types/program";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
 
 export const statuses = [
   {
@@ -97,7 +99,7 @@ export default function ProgramProjectsDashboard() {
       title: "All Projects",
       value: projects ? projects.length : 0,
       icon: ClipboardList,
-      description: "All existing projects in TAM",
+      description: "All existing projects",
     },
     {
       title: "Running Projects",
@@ -112,15 +114,6 @@ export default function ProgramProjectsDashboard() {
         projects?.filter((project) => project.status === "closed").length ?? 0,
       icon: ClipboardX,
       description: "Projects that completed or closed",
-    },
-    {
-      title: "Latest Project",
-      value:
-        projects && projects.length > 0
-          ? projects[projects.length - 1].title
-          : "No Project Found",
-      icon: Clock,
-      description: "Most recently created project",
     },
   ];
 
@@ -182,6 +175,47 @@ export default function ProgramProjectsDashboard() {
             </div>
           </div>
         ))}
+        <div className="w-full rounded-lg bg-white p-6 shadow-lg lg:w-full">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex gap-2">
+              <p className="text-xl font-semibold">Access: </p>
+              <p className="text-primary text-xl font-semibold">
+                ({program?.Accounts?.length ?? 0})
+              </p>
+            </div>
+            <Button className="">Add Access </Button>
+          </div>
+
+          {(program?.Accounts?.length ?? 0) > 0 ? (
+            <ScrollArea className="mt-2 flex h-40 flex-col gap-2 overflow-hidden">
+              {program?.Accounts?.map((user) => (
+                <div
+                  key={user.id}
+                  className="flex items-center gap-2 rounded-md border-b p-2"
+                >
+                  <div className="relative size-8 items-center overflow-hidden rounded-full border">
+                    <Image
+                      src={
+                        (user.image as string) ||
+                        "https://wallpapers.com/images/hd/placeholder-profile-icon-8qmjk1094ijhbem9.jpg"
+                      }
+                      alt={user.fullname}
+                      fill
+                      className="object-cover object-center"
+                    />
+                  </div>
+                  <div className="">
+                    <p className="font-medium">{user.fullname}</p>
+                  </div>
+                </div>
+              ))}
+            </ScrollArea>
+          ) : (
+            <p className="text-muted-foreground mt-4 text-center">
+              No assigned employees
+            </p>
+          )}
+        </div>
       </div>
 
       <div className="space-y-4">

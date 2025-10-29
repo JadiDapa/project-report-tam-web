@@ -173,7 +173,7 @@ export default function ProjectDetail() {
         </div>
         {isProjectManager && (
           <div className="flex items-center gap-4 lg:gap-6">
-            <CreateTaskModal>
+            <CreateTaskModal projectId={project.id}>
               <p className="bg-primary text-secondary flex place-items-center gap-4 rounded-md px-4 py-1.5 text-lg shadow-sm">
                 <p>Create Task</p>
                 <Plus size={24} />

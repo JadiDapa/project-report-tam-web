@@ -1,3 +1,4 @@
+import { AccountType } from "./account";
 import { ProjectType } from "./project";
 
 export interface CreateProgramType {
@@ -11,4 +12,5 @@ export interface ProgramType extends CreateProgramType {
   createdAt: Date;
   updatedAt: Date;
   Projects: ProjectType[];
+  Accounts: AccountType[];
 }

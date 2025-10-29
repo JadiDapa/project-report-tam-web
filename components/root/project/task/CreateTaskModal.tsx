@@ -20,10 +20,10 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Eye, EyeOff, Link, Plus } from "lucide-react";
+import { Link, Plus } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Select,
   SelectContent,
@@ -31,9 +31,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { createAccount } from "@/lib/networks/account";
-import { CreateAccountType } from "@/lib/types/account";
-import { getAllRoles } from "@/lib/networks/role";
+import { createTask } from "@/lib/networks/task";
+import { CreateTaskType } from "@/lib/types/task";
+import { Textarea } from "@/components/ui/textarea";
 
 const taskSchema = z.object({
   type: z.string().min(1, "Type Must Be Filled"),
@@ -42,57 +42,81 @@ const taskSchema = z.object({
   description: z.string().min(1, "Description Must Be Filled"),
   projectId: z.string().min(1, "Project ID Must Be Filled"),
 });
+
+export const projectType = [
+  {
+    label: "Installation",
+    value: "installation",
+  },
+  {
+    label: "Configuration",
+    value: "configuration",
+  },
+  {
+    label: "Maintanance",
+    value: "maintanance",
+  },
+  {
+    label: "Daily Report",
+    value: "Daily Report",
+  },
+];
+
 interface CreateTaskModalProps {
   children: React.ReactNode;
+  projectId: number;
 }
 
-export default function CreateTaskModal({ children }: CreateTaskModalProps) {
+export default function CreateTaskModal({
+  children,
+  projectId,
+}: CreateTaskModalProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
 
   const queryClient = useQueryClient();
 
-  const { data: roles } = useQuery({
-    queryFn: () => getAllRoles(),
-    queryKey: ["roles"],
-  });
-
-  const { mutateAsync: onCreateAccount, isPending } = useMutation({
-    mutationFn: (values: CreateAccountType) => createAccount(values),
+  const { mutateAsync: onCreateTask, isPending } = useMutation({
+    mutationFn: (values: CreateTaskType) => createTask(values),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["accounts"] });
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
       setIsDialogOpen(false);
     },
     onError: () => {
-      toast.error("Something went wrong creating the account data!");
+      toast.error("Something went wrong creating the task data!");
     },
   });
 
   const form = useForm<z.infer<typeof taskSchema>>({
     resolver: zodResolver(taskSchema),
     defaultValues: {
-      fullname: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
-      role: "",
+      type: "",
+      item: "",
+      quantity: "",
+      description: "",
+      projectId: projectId.toString(),
     },
   });
 
   async function onSubmit(values: z.infer<typeof taskSchema>) {
     try {
-      await onCreateAccount({
-        fullname: values.fullname,
-        email: values.email,
-        password: values.password,
-        roleId: Number(values.role),
-      });
+      const payload: CreateTaskType = {
+        type: values.type,
+        item: values.item,
+        description: values.description,
+        projectId: Number(values.projectId),
+        quantity: Number(values.quantity),
+      };
 
-      queryClient.invalidateQueries({ queryKey: ["accounts"] });
-      toast.success("Account successfully created!");
+      await onCreateTask(payload);
+
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({
+        queryKey: ["projects", values.projectId],
+      });
+      toast.success("Task successfully created!");
     } catch (err) {
-      console.error("Account creation failed", err);
-      toast.error("Something went wrong creating the account data!");
+      console.error("Task creation failed", err);
+      toast.error("Something went wrong creating the task data!");
     }
   }
 
@@ -102,7 +126,7 @@ export default function CreateTaskModal({ children }: CreateTaskModalProps) {
       <DialogContent className="">
         <DialogHeader>
           <DialogTitle className="text-2xl font-medium">
-            Add a New Account
+            Add a New Task
           </DialogTitle>
           <Form {...form}>
             <form
@@ -112,63 +136,28 @@ export default function CreateTaskModal({ children }: CreateTaskModalProps) {
               <div className="flex-1 space-y-2 lg:space-y-4">
                 <FormField
                   control={form.control}
-                  name="fullname"
+                  name="type"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Full Name</FormLabel>
-                      <FormControl>
-                        <Input className="w-full" {...field} />
-                      </FormControl>
-                      <FormMessage className="text-start" />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl className="relative">
-                        <Input className="w-full" {...field} />
-                      </FormControl>
-                      <FormMessage className="text-start" />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="role"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Role</FormLabel>
+                      <FormLabel>Task Type</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
                       >
                         <FormControl>
                           <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select Division" />
+                            <SelectValue placeholder="Select Task Type" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {roles?.map((account) => (
+                          {projectType?.map((task) => (
                             <SelectItem
-                              key={account.id}
-                              value={account.id.toString()}
+                              key={task.value}
+                              value={task.value.toString()}
                             >
-                              {account.name}
+                              {task.label}
                             </SelectItem>
                           ))}
-                          <Link
-                            href="/accounts"
-                            className="flex items-center gap-2 py-1.5 pr-8 pl-2 text-sm"
-                          >
-                            <p>Create New Product</p>
-                            <Plus className="size-4" />
-                          </Link>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -178,31 +167,12 @@ export default function CreateTaskModal({ children }: CreateTaskModalProps) {
 
                 <FormField
                   control={form.control}
-                  name="password"
+                  name="item"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Password</FormLabel>
+                      <FormLabel>Item Name</FormLabel>
                       <FormControl className="relative">
-                        <div className="relative">
-                          <Input
-                            type={showPassword ? "text" : "password"}
-                            className="w-full"
-                            {...field}
-                          />
-                          {showPassword ? (
-                            <Eye
-                              strokeWidth={1.4}
-                              className="absolute top-2 right-2 size-5"
-                              onClick={() => setShowPassword(!showPassword)}
-                            />
-                          ) : (
-                            <EyeOff
-                              strokeWidth={1.4}
-                              className="absolute top-2 right-2 size-5"
-                              onClick={() => setShowPassword(!showPassword)}
-                            />
-                          )}
-                        </div>
+                        <Input className="w-full" {...field} />
                       </FormControl>
                       <FormMessage className="text-start" />
                     </FormItem>
@@ -211,31 +181,26 @@ export default function CreateTaskModal({ children }: CreateTaskModalProps) {
 
                 <FormField
                   control={form.control}
-                  name="confirmPassword"
+                  name="quantity"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Confirm Password</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Input
-                            type={showPassword ? "text" : "password"}
-                            className="w-full"
-                            {...field}
-                          />
-                          {showPassword ? (
-                            <Eye
-                              strokeWidth={1.4}
-                              className="absolute top-2 right-2 size-5"
-                              onClick={() => setShowPassword(!showPassword)}
-                            />
-                          ) : (
-                            <EyeOff
-                              strokeWidth={1.4}
-                              className="absolute top-2 right-2 size-5"
-                              onClick={() => setShowPassword(!showPassword)}
-                            />
-                          )}
-                        </div>
+                      <FormLabel>Quantity</FormLabel>
+                      <FormControl className="relative">
+                        <Input type="number" className="w-full" {...field} />
+                      </FormControl>
+                      <FormMessage className="text-start" />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Task Descripton</FormLabel>
+                      <FormControl className="relative">
+                        <Textarea className="w-full" {...field} />
                       </FormControl>
                       <FormMessage className="text-start" />
                     </FormItem>

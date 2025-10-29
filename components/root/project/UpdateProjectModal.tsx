@@ -76,10 +76,7 @@ export default function UpdateProjectModal({
   const { mutateAsync: onCreateProject, isPending } = useMutation({
     mutationFn: (values: CreateProjectType) =>
       updateProject(project.id.toString(), values),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["projects", project.id] });
-      setIsDialogOpen(false);
-    },
+    onSuccess: () => {},
     onError: () => {
       toast.error("Something went wrong creating the project data!");
     },
@@ -102,6 +99,10 @@ export default function UpdateProjectModal({
       ...values,
       Employees: values.Employees.map((id) => ({ id: id })),
     });
+    queryClient.invalidateQueries({ queryKey: ["projects", project.id] });
+    toast.success("Project successfully updated!");
+
+    setIsDialogOpen(false);
   }
 
   return (

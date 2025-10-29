@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Eye, EyeOff, Link, Plus } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -68,11 +68,13 @@ export default function CreateAccountModal({
 
   const queryClient = useQueryClient();
 
+  // Get available roles
   const { data: roles } = useQuery({
     queryFn: () => getAllRoles(),
     queryKey: ["roles"],
   });
 
+  // Create account mutation for your backend
   const { mutateAsync: onCreateAccount, isPending } = useMutation({
     mutationFn: (values: CreateAccountType) => createAccount(values),
     onSuccess: () => {
@@ -80,7 +82,7 @@ export default function CreateAccountModal({
       setIsDialogOpen(false);
     },
     onError: () => {
-      toast.error("Something went wrong creating the account data!");
+      toast.error("Something went wrong creating the account!");
     },
   });
 
@@ -95,27 +97,33 @@ export default function CreateAccountModal({
     },
   });
 
+  // ✅ Handles creation on Clerk + Database
   async function onSubmit(values: z.infer<typeof accountSchema>) {
     try {
-      await onCreateAccount({
+      const res = await onCreateAccount({
         fullname: values.fullname,
         email: values.email,
         password: values.password,
         roleId: Number(values.role),
       });
 
+      if (!res.ok) throw new Error((await res.json()).error);
+      toast.success("Account created successfully!");
+      setIsDialogOpen(false);
       queryClient.invalidateQueries({ queryKey: ["accounts"] });
-      toast.success("Account successfully created!");
-    } catch (err) {
-      console.error("Account creation failed", err);
-      toast.error("Something went wrong creating the account data!");
+    } catch (error: any) {
+      console.error("Account creation failed", error);
+      toast.error(
+        error?.errors?.[0]?.message ||
+          "Something went wrong creating the account!",
+      );
     }
   }
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger>{children}</DialogTrigger>
-      <DialogContent className="">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle className="text-2xl font-medium">
             Add a New Account
@@ -123,147 +131,131 @@ export default function CreateAccountModal({
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}
-              className="flex flex-wrap gap-12 pt-4 lg:gap-4"
+              className="flex flex-col gap-4 pt-4"
             >
-              <div className="flex-1 space-y-2 lg:space-y-4">
-                <FormField
-                  control={form.control}
-                  name="fullname"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Full Name</FormLabel>
+              <FormField
+                control={form.control}
+                name="fullname"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Full Name</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="role"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Role</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
                       <FormControl>
-                        <Input className="w-full" {...field} />
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select Role" />
+                        </SelectTrigger>
                       </FormControl>
-                      <FormMessage className="text-start" />
-                    </FormItem>
-                  )}
-                />
+                      <SelectContent>
+                        {roles?.map((role) => (
+                          <SelectItem key={role.id} value={role.id.toString()}>
+                            {role.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl className="relative">
-                        <Input className="w-full" {...field} />
-                      </FormControl>
-                      <FormMessage className="text-start" />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="role"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Role</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select Division" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {roles?.map((account) => (
-                            <SelectItem
-                              key={account.id}
-                              value={account.id.toString()}
-                            >
-                              {account.name}
-                            </SelectItem>
-                          ))}
-                          <Link
-                            href="/accounts"
-                            className="flex items-center gap-2 py-1.5 pr-8 pl-2 text-sm"
-                          >
-                            <p>Create New Product</p>
-                            <Plus className="size-4" />
-                          </Link>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Password</FormLabel>
-                      <FormControl className="relative">
-                        <div className="relative">
-                          <Input
-                            type={showPassword ? "text" : "password"}
-                            className="w-full"
-                            {...field}
+              {/* Password */}
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <Input
+                          type={showPassword ? "text" : "password"}
+                          {...field}
+                        />
+                        {showPassword ? (
+                          <Eye
+                            strokeWidth={1.4}
+                            className="absolute top-2 right-2 size-5 cursor-pointer"
+                            onClick={() => setShowPassword(false)}
                           />
-                          {showPassword ? (
-                            <Eye
-                              strokeWidth={1.4}
-                              className="absolute top-2 right-2 size-5"
-                              onClick={() => setShowPassword(!showPassword)}
-                            />
-                          ) : (
-                            <EyeOff
-                              strokeWidth={1.4}
-                              className="absolute top-2 right-2 size-5"
-                              onClick={() => setShowPassword(!showPassword)}
-                            />
-                          )}
-                        </div>
-                      </FormControl>
-                      <FormMessage className="text-start" />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="confirmPassword"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Confirm Password</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Input
-                            type={showPassword ? "text" : "password"}
-                            className="w-full"
-                            {...field}
+                        ) : (
+                          <EyeOff
+                            strokeWidth={1.4}
+                            className="absolute top-2 right-2 size-5 cursor-pointer"
+                            onClick={() => setShowPassword(true)}
                           />
-                          {showPassword ? (
-                            <Eye
-                              strokeWidth={1.4}
-                              className="absolute top-2 right-2 size-5"
-                              onClick={() => setShowPassword(!showPassword)}
-                            />
-                          ) : (
-                            <EyeOff
-                              strokeWidth={1.4}
-                              className="absolute top-2 right-2 size-5"
-                              onClick={() => setShowPassword(!showPassword)}
-                            />
-                          )}
-                        </div>
-                      </FormControl>
-                      <FormMessage className="text-start" />
-                    </FormItem>
-                  )}
-                />
-              </div>
+                        )}
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-              <Button
-                disabled={isPending}
-                className="flex w-full items-center gap-3"
-                type="submit"
-              >
+              {/* Confirm Password */}
+              <FormField
+                control={form.control}
+                name="confirmPassword"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Confirm Password</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <Input
+                          type={showPassword ? "text" : "password"}
+                          {...field}
+                        />
+                        {showPassword ? (
+                          <Eye
+                            strokeWidth={1.4}
+                            className="absolute top-2 right-2 size-5 cursor-pointer"
+                            onClick={() => setShowPassword(false)}
+                          />
+                        ) : (
+                          <EyeOff
+                            strokeWidth={1.4}
+                            className="absolute top-2 right-2 size-5 cursor-pointer"
+                            onClick={() => setShowPassword(true)}
+                          />
+                        )}
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <Button disabled={isPending} type="submit" className="w-full">
                 {isPending ? "Submitting..." : "Submit"}
               </Button>
             </form>

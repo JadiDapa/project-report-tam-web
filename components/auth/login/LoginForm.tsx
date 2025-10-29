@@ -51,7 +51,7 @@ export default function LoginForm() {
       if (result.status === "complete" && result.createdSessionId) {
         await setActive({ session: result.createdSessionId });
         toast.success("Login Successful!");
-        router.push("/");
+        router.push("/dashboard");
       } else {
         toast.error("Invalid Email or Password!");
       }
