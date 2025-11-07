@@ -8,6 +8,7 @@ import {
   Info,
   ListCheck,
   Plus,
+  Settings,
   UsersRound,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
@@ -24,7 +25,7 @@ import { getProgramById } from "@/lib/networks/program";
 import { ProgramType } from "@/lib/types/program";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
+import ManageProgramAccess from "@/components/root/program/ManageProgramAccess";
 
 export const statuses = [
   {
@@ -50,8 +51,6 @@ export const statuses = [
 export default function ProgramProjectsDashboard() {
   const { id } = useParams();
   const { account } = useAccount();
-  // const router = useRouter();
-
   const { data: projects } = useQuery({
     queryFn: () => getProjectsByProgramId(id as string),
     queryKey: ["projects"],
@@ -180,32 +179,46 @@ export default function ProgramProjectsDashboard() {
             <div className="flex gap-2">
               <p className="text-xl font-semibold">Access: </p>
               <p className="text-primary text-xl font-semibold">
-                ({program?.Accounts?.length ?? 0})
+                ({program?.Accounts.length ?? 0})
               </p>
             </div>
-            <Button className="">Add Access </Button>
+            {isProjectManager && (
+              <ManageProgramAccess program={(program as ProgramType) || []}>
+                <div className="bg-primary text-secondary flex place-items-center gap-4 rounded-md px-2 py-0.5 text-lg shadow-sm">
+                  <p className="text-sm">Manage</p>
+                  <Settings size={24} strokeWidth={1.2} />
+                </div>
+              </ManageProgramAccess>
+            )}
           </div>
 
-          {(program?.Accounts?.length ?? 0) > 0 ? (
+          {(program?.Accounts.length ?? 0) > 0 ? (
             <ScrollArea className="mt-2 flex h-40 flex-col gap-2 overflow-hidden">
-              {program?.Accounts?.map((user) => (
+              {program?.Accounts.map((user) => (
                 <div
                   key={user.id}
                   className="flex items-center gap-2 rounded-md border-b p-2"
                 >
-                  <div className="relative size-8 items-center overflow-hidden rounded-full border">
+                  <div className="relative size-6 items-center overflow-hidden rounded-full border">
                     <Image
                       src={
-                        (user.image as string) ||
+                        (user.Account.image as string) ||
                         "https://wallpapers.com/images/hd/placeholder-profile-icon-8qmjk1094ijhbem9.jpg"
                       }
-                      alt={user.fullname}
+                      alt={user.Account.fullname}
                       fill
                       className="object-cover object-center"
                     />
                   </div>
                   <div className="">
-                    <p className="font-medium">{user.fullname}</p>
+                    <p className="text-sm font-medium">
+                      {user.Account.fullname}
+                    </p>
+                    <div className="">
+                      <p className="text-muted-foreground text-xs">
+                        {user.Account.Role.name}
+                      </p>
+                    </div>
                   </div>
                 </div>
               ))}

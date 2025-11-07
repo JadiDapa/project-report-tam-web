@@ -41,7 +41,11 @@ export default function ProgramsDashboard() {
     (feature) => feature.name === "Manage Project",
   );
 
-  const programsFiltered = isProjectManager ? programs : programs?.slice(0, -1);
+  const programsFiltered = isProjectManager
+    ? programs
+    : programs?.filter((program) =>
+        program.Accounts?.some((acc) => acc.accountId === account?.id),
+      );
 
   // useEffect(() => {
   //   if (account && account.Role.name !== "Administrator") {
