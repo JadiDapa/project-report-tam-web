@@ -38,10 +38,12 @@ import UpdateProjectModal from "@/components/root/project/UpdateProjectModal";
 import CreateTaskModal from "@/components/root/project/task/CreateTaskModal";
 import DeleteDialog from "@/components/root/DeleteDialog";
 import { useAccount } from "@/providers/AccountProvider";
+import DownloadLoadingModal from "@/components/root/DownloadingModal";
 
 export default function ProjectDetail() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const { account } = useAccount();
   const queryClient = useQueryClient();
@@ -166,20 +168,24 @@ export default function ProjectDetail() {
   const handleDownload = async () => {
     if (!project) return;
 
-    const url = await getProjectEvidences(project.id.toString());
+    try {
+      setIsDownloading(true);
 
-    if (!url) {
-      alert("No file URL found.");
-      return;
+      const url = await getProjectEvidences(project.id.toString());
+
+      if (!url) {
+        alert("No file URL found.");
+        return;
+      }
+
+      // Use direct navigation to avoid popup blockers
+      window.location.href = url;
+    } catch (err) {
+      console.error(err);
+      alert("Something went wrong while generating document.");
+    } finally {
+      setIsDownloading(false);
     }
-
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `Project-Task-Report-${format(new Date(), "dd-MM-yyyy")}.docx`;
-    link.target = "_blank";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
   };
 
   if (!project && !tasks) return null;
@@ -382,6 +388,8 @@ export default function ProjectDetail() {
           </div>
         )}
       />
+
+      <DownloadLoadingModal open={isDownloading} />
     </section>
   );
 }
