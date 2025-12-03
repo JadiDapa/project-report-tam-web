@@ -102,7 +102,7 @@ export default function ManageProgramAccess({
                     : []
                 }
                 onValueChange={(values) => setSelectedAccounts(values)}
-                placeholder="Choose employees"
+                placeholder="Choose employees"  
                 maxCount={3}
               />
             </div>

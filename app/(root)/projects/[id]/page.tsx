@@ -2,8 +2,11 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
-import { deleteProject, getProjectById } from "@/lib/networks/project";
-import ExcelExport from "@/components/root/ExcelExport";
+import {
+  deleteProject,
+  getProjectById,
+  getProjectEvidences,
+} from "@/lib/networks/project";
 import DataTable from "@/components/root/DataTable";
 import { taskColumn } from "@/lib/columns/task";
 import SearchDataTable from "@/components/root/SearchDataTable";
@@ -18,6 +21,7 @@ import {
   BetweenHorizonalStart,
   CalendarCheck,
   CalendarX,
+  ImageDown,
   Pencil,
   Plus,
 } from "lucide-react";
@@ -159,6 +163,25 @@ export default function ProjectDetail() {
     },
   });
 
+  const handleDownload = async () => {
+    if (!project) return;
+
+    const url = await getProjectEvidences(project.id.toString());
+
+    if (!url) {
+      alert("No file URL found.");
+      return;
+    }
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `Project-Task-Report-${format(new Date(), "dd-MM-yyyy")}.docx`;
+    link.target = "_blank";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   if (!project && !tasks) return null;
 
   return (
@@ -201,7 +224,13 @@ export default function ProjectDetail() {
                 className="hidden"
               />
             </Button>
-            <ExcelExport data={project.Tasks} filename="tam-projects.xlsx" />
+            <Button
+              onClick={handleDownload}
+              className="bg-primary hover:text-primary border-primary h-10 items-center gap-4 border text-white hover:bg-transparent"
+            >
+              <p className="text-lg">Download Evidence</p>
+              <ImageDown className="size-5" />
+            </Button>
             <DeleteDialog
               label="Delete Project"
               name={`${project.title}`}

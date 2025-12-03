@@ -33,16 +33,9 @@ export async function getProjectById(id: string) {
   return data.data;
 }
 
-export async function getProjectReportEvidences(
-  id: string,
-  getToken: () => Promise<string | null>,
-) {
-  const token = await getToken();
+export async function getProjectEvidences(id: string) {
   const { data } = await axiosInstance.get<{ data: string }>(
-    `/projects/generate-report/${id}`,
-    {
-      headers: { Authorization: `Bearer ${token}` },
-    },
+    `/projects/generate-evidence/${id}`,
   );
   return data.data;
 }
