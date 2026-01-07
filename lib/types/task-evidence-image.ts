@@ -7,6 +7,7 @@ export interface CreateTaskEvidenceImageType {
   description?: string;
   taskEvidenceId: number;
   accountId?: number;
+  isExport?: boolean;
 }
 
 export interface TaskEvidenceImageType extends CreateTaskEvidenceImageType {

@@ -54,6 +54,7 @@ export default function EvidenceDetailModal({
           image: image.image,
           taskEvidenceId: image.taskEvidenceId,
           accountId: image.accountId,
+          isExport: image.isExport,
         })),
       );
     }
@@ -82,17 +83,6 @@ export default function EvidenceDetailModal({
     (feature) => feature.name === "Manage Project",
   );
 
-  // const { mutateAsync: handleDelete, isPending: isLoading } = useMutation({
-  //   mutationFn: () => deleteTaskEvidence(evidence!.id as unknown as string),
-  //   onSuccess: () => {
-  //     toast.success("Task Evidence Successfully Removed!");
-  //     queryClient.invalidateQueries({ queryKey: ["tasks", taskId] });
-  //   },
-  //   onError: () => {
-  //     toast.error("Failed to Remove Task Evidence!");
-  //   },
-  // });
-
   const onSubmit = () => {
     onCreateTaskEvidence({
       title: evidence?.title ?? "",
@@ -100,20 +90,15 @@ export default function EvidenceDetailModal({
       description: detail,
     });
   };
+
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger>{children}</DialogTrigger>
-      <DialogContent className="max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-h-[90vh] overflow-y-auto lg:min-w-[50vw]">
         <DialogHeader>
           <DialogTitle className="text-2xl font-semibold">
             <div className="flex items-center justify-between">
               <p>Task Evidence</p>
-              {/* <DeleteDialog
-                label="Delete This Task"
-                name={`${task.type} - ${task.item}`}
-                onDelete={handleDelete}
-                isLoading={isLoading}
-              /> */}
             </div>
           </DialogTitle>
           <div className="">

@@ -47,11 +47,6 @@ export async function updateTaskEvidence(
 
   formData.append("description", values.description || "");
   formData.append("taskId", values.taskId?.toString() ?? "");
-  formData.append("accountId", values.accountId?.toString() ?? "");
-
-  if (values.image) {
-    formData.append("image", values.image as string);
-  }
 
   try {
     const { data } = await axiosInstance.put(

@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import {
   createTaskEvidenceImage,
   deleteTaskEvidenceImage,
+  updateTaskEvidenceImage,
 } from "@/lib/networks/task-evidence-image";
 import { CreateTaskEvidenceImageType } from "@/lib/types/task-evidence-image";
 import { useQueryClient } from "@tanstack/react-query";
@@ -18,6 +19,8 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useAccount } from "@/providers/AccountProvider";
+import { Checkbox } from "../ui/checkbox";
+import { Label } from "../ui/label";
 
 interface UploadTaskEvidenceProps {
   uploadedEvidences: CreateTaskEvidenceImageType[];
@@ -107,6 +110,27 @@ export default function UploadTaskEvidence({
     }
   };
 
+  const handleSetIsExport = async (id: number, status?: boolean) => {
+    try {
+      await updateTaskEvidenceImage(id.toString(), {
+        isExport: !status,
+      });
+
+      setUploadedEvidences((prev) =>
+        prev.map((img) =>
+          img.id === id ? { ...img, isExport: !status } : img,
+        ),
+      );
+
+      queryClient.invalidateQueries({ queryKey: ["tasks", taskId] });
+
+      toast.success(`Image export status updated`);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to update export status");
+    }
+  };
+
   return (
     <div className="space-y-4">
       {isProjectManager && (
@@ -129,32 +153,61 @@ export default function UploadTaskEvidence({
       )}
 
       <div className="flex flex-wrap gap-4">
-        {uploadedEvidences.map((evidence) => (
-          <div
-            key={evidence.id}
-            className="group relative h-32 w-32 cursor-pointer overflow-hidden rounded border"
-          >
-            <Image
-              src={evidence.image as string}
-              alt="Evidence"
-              width={128}
-              height={128}
-              unoptimized
-              className="h-full w-full object-cover"
-              onClick={() => setPreviewImage(evidence.image as string)}
-            />
-            {isProjectManager && (
-              <button
-                onClick={() =>
-                  evidence.id !== undefined && handleDelete(evidence.id)
-                }
-                className="absolute top-1 right-1 rounded-full bg-white p-1 shadow hover:bg-red-100"
-              >
-                <X className="h-4 w-4 text-red-500" />
-              </button>
-            )}
-          </div>
-        ))}
+        {uploadedEvidences.map((evidence) => {
+          console.log(evidence);
+          return (
+            <div
+              key={evidence.id}
+              className="group relative h-52 w-full cursor-pointer overflow-hidden rounded border lg:size-52"
+            >
+              <Image
+                src={evidence.image as string}
+                alt="Evidence"
+                width={128}
+                height={128}
+                unoptimized
+                className="h-full w-full object-cover"
+                onClick={() => setPreviewImage(evidence.image as string)}
+              />
+              {isProjectManager && (
+                <button
+                  onClick={() => {
+                    const confirmed = confirm(
+                      "Are you sure you want to delete this image?",
+                    );
+                    if (confirmed) {
+                      handleDelete(evidence.id as number);
+                    }
+                  }}
+                  className="absolute top-1 right-1 rounded-full bg-white p-1 shadow hover:bg-red-100"
+                >
+                  <X className="h-4 w-4 text-red-500" />
+                </button>
+              )}
+              {isProjectManager && (
+                <div className="absolute bottom-0 flex cursor-pointer items-center space-x-2 rounded-full bg-black/40 p-1 px-4">
+                  <Checkbox
+                    id={`isExport-${evidence.id}`}
+                    checked={evidence.isExport}
+                    onClick={() =>
+                      handleSetIsExport(
+                        evidence.id as number,
+                        evidence.isExport,
+                      )
+                    }
+                    className="cursor-pointer"
+                  />
+                  <Label
+                    htmlFor={`isExport-${evidence.id}`}
+                    className="cursor-pointer text-white"
+                  >
+                    Export Image
+                  </Label>
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {/* Modal for preview */}

@@ -194,23 +194,23 @@ export default function ProjectDetail() {
     <section className="flex w-full flex-col gap-4 py-6 lg:gap-6">
       {/* Header Title */}
       <div className="flex w-full flex-col justify-between gap-4 lg:flex-row lg:gap-6">
-        <div className="">
+        <div className="flex-1">
           <h1 className="text-4xl font-medium">Project Detail</h1>
           <p className="hidden lg:inline">
             Taruna Anugrah Mandiri Project List
           </p>
         </div>
         {isProjectManager && (
-          <div className="flex items-center gap-4 lg:gap-6">
+          <div className="flex flex-1 flex-wrap items-center justify-end gap-4 lg:gap-6">
             <CreateTaskModal projectId={project.id}>
-              <p className="bg-primary text-secondary flex place-items-center gap-4 rounded-md px-4 py-1.5 text-lg shadow-sm">
+              <div className="bg-primary text-secondary flex place-items-center gap-4 rounded-md px-4 py-1.5 text-lg shadow-sm">
                 <p>Create Task</p>
                 <Plus size={24} />
-              </p>
+              </div>
             </CreateTaskModal>
             <UpdateProjectModal project={project}>
               <div className="bg-primary text-secondary flex place-items-center gap-4 rounded-md px-4 py-1.5 text-lg shadow-sm">
-                <p>Modify</p>
+                <p>Modify Project</p>
                 <Pencil size={24} />
               </div>
             </UpdateProjectModal>
