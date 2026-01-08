@@ -26,17 +26,8 @@ export async function createTaskEvidenceImage(
 ) {
   const formData = new FormData();
 
-  formData.append("image", {
-    uri: values.image,
-    name: "evidence.jpg",
-    type: "image/jpeg",
-  } as any);
-
-  formData.append("baseImage", {
-    uri: values.baseImage,
-    name: "evidence.jpg",
-    type: "image/jpeg",
-  } as any);
+  formData.append("image", values.image);
+  formData.append("baseImage", values.baseImage);
 
   formData.append("taskEvidenceId", values.taskEvidenceId.toString());
   if (values.accountId) {
@@ -64,7 +55,7 @@ export async function createTaskEvidenceImage(
   return data.data;
 }
 
-// Update TaskEvidenceImage (if supported by backend)
+// Update TaskEvidenceImage
 export async function updateTaskEvidenceImage(
   id: string,
   values: Partial<CreateTaskEvidenceImageType>,

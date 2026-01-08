@@ -47,26 +47,33 @@ export default function UploadTaskEvidence({
     (feature) => feature.name === "Manage Project",
   );
 
-  // State for modal preview
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const handleUploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const input = e.target;
+    const file = input.files?.[0];
     if (!file) return;
 
+    input.value = "";
+
     const values: CreateTaskEvidenceImageType = {
+      baseImage: file,
       image: file,
+      date: new Date(),
+      latitude: 0,
+      longitude: 0,
+      description: "",
       taskEvidenceId: evidenceId,
       accountId,
     };
 
+    console.log(values);
+
     setUploading(true);
     try {
       const response = await createTaskEvidenceImage(values);
-
       setUploadedEvidences((prev) => [...prev, response]);
       queryClient.invalidateQueries({ queryKey: ["tasks", taskId] });
-
       toast.success("Image uploaded successfully");
     } catch (err) {
       console.error(err);
@@ -140,7 +147,7 @@ export default function UploadTaskEvidence({
             <input
               type="file"
               accept="image/*"
-              onChange={handleFileChange}
+              onChange={handleUploadImage}
               disabled={uploading}
               className="hidden"
             />

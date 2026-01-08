@@ -18,9 +18,9 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import ImageUploader from "../../ImageUpload";
 import { Calendar, Send, User } from "lucide-react";
-import { CreateTaskEvidenceImageType } from "@/lib/types/task-evidence-image";
 import { Input } from "@/components/ui/input";
 import { useAccount } from "@/providers/AccountProvider";
+import { CreateTaskEvidenceImageType } from "@/lib/types/task-evidence-image";
 
 interface EvidenceDetailModalProps {
   children: React.ReactNode;
@@ -51,10 +51,15 @@ export default function EvidenceDetailModal({
       setUploadedEvidences(
         evidence.TaskEvidenceImages.map((image) => ({
           id: image.id,
+          baseImage: image.baseImage,
           image: image.image,
           taskEvidenceId: image.taskEvidenceId,
           accountId: image.accountId,
           isExport: image.isExport,
+          latitude: image.latitude,
+          longitude: image.longitude,
+          date: image.date,
+          description: image.description,
         })),
       );
     }
@@ -64,7 +69,7 @@ export default function EvidenceDetailModal({
     }
   }, [evidence]);
 
-  const { mutate: onCreateTaskEvidence } = useMutation({
+  const { mutate: onUpdateTaskEvidence } = useMutation({
     mutationFn: (values: CreateTaskEvidenceType) =>
       updateTaskEvidence(evidence!.id.toString(), values),
     onSuccess: () => {
@@ -84,7 +89,7 @@ export default function EvidenceDetailModal({
   );
 
   const onSubmit = () => {
-    onCreateTaskEvidence({
+    onUpdateTaskEvidence({
       title: evidence?.title ?? "",
       taskId: Number(evidence?.taskId),
       description: detail,
@@ -108,7 +113,7 @@ export default function EvidenceDetailModal({
             <div className="mt-2 mb-6 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <User className="text-primary size-4" />
-                <p className="font-medium"> {"Mi"}</p>
+                <p className="font-medium"> {"User"}</p>
               </div>
               <div className="flex items-center gap-2">
                 <Calendar className="text-primary size-4" />
