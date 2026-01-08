@@ -130,7 +130,6 @@ export default function ProjectDetail() {
       const sheet = workbook.Sheets[sheetName];
       const jsonData = XLSX.utils.sheet_to_json(sheet);
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const formatted = jsonData.map((row: any) => ({
         type: row["type"]?.toString().trim() || "",
         item: row["item"]?.toString().trim() || "",

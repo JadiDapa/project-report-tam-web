@@ -32,7 +32,6 @@ interface DataTableProps<TData, TValue> {
   title?: string;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const DataTable: React.FC<DataTableProps<any, any>> = ({
   columns,
   data,

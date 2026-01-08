@@ -4,7 +4,6 @@ import { Button } from "../ui/button";
 import { Download } from "lucide-react";
 
 interface ExcelExportProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: any[];
   filename: string;
 }
@@ -30,7 +29,7 @@ export default function ExcelExport({ data, filename }: ExcelExportProps) {
   return (
     <Button
       onClick={exportToExcel}
-      className="bg-tertiary hover:text-tertiary h-10 items-center gap-4 border border-primary text-primary"
+      className="bg-tertiary hover:text-tertiary border-primary text-primary h-10 items-center gap-4 border"
     >
       <p className="text-lg">Export</p>
       <Download />

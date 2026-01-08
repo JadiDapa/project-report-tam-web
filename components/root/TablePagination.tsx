@@ -7,7 +7,6 @@ import {
   ChevronsRight,
 } from "lucide-react";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type TData = any;
 
 type Props = {

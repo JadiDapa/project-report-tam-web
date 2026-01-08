@@ -2,7 +2,6 @@ import { ArrowUpDown } from "lucide-react";
 import { Column } from "@tanstack/react-table";
 
 type TableSorterProps = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   column: Column<any, unknown>;
   header: string;
   isFirst?: boolean;
