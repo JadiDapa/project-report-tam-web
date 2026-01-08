@@ -26,8 +26,17 @@ export async function createTaskEvidenceImage(
 ) {
   const formData = new FormData();
 
-  // This assumes `values.image` is a File object (from an <input type="file" />)
-  formData.append("image", values.image); // values.image: File
+  formData.append("image", {
+    uri: values.image,
+    name: "evidence.jpg",
+    type: "image/jpeg",
+  } as any);
+
+  formData.append("baseImage", {
+    uri: values.baseImage,
+    name: "evidence.jpg",
+    type: "image/jpeg",
+  } as any);
 
   formData.append("taskEvidenceId", values.taskEvidenceId.toString());
   if (values.accountId) {
@@ -35,6 +44,15 @@ export async function createTaskEvidenceImage(
   }
   if (values.description) {
     formData.append("description", values.description);
+  }
+  if (values.date) {
+    formData.append("date", values.date);
+  }
+  if (values.latitude) {
+    formData.append("latitude", values.latitude);
+  }
+  if (values.longitude) {
+    formData.append("longitude", values.longitude);
   }
 
   const { data } = await axiosInstance.post("/task-evidence-images", formData, {
