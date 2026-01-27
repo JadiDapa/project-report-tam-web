@@ -41,7 +41,7 @@ export const priorityStatus = [
     color: "#00aa00",
   },
   {
-    priority: "medium",
+    priority: "normal",
     color: "#ffaa00",
   },
   {
@@ -74,6 +74,8 @@ export function TicketSidebar() {
         latestMessage.toLowerCase().includes(keyword)
       );
     }) ?? [];
+
+  if (!filteredTickets) return null;
 
   return (
     <Sidebar>

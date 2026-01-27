@@ -7,7 +7,7 @@ import {
 } from "@/lib/networks/ticket";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   CreateTicketMessageType,
   TicketMessageType,
@@ -27,6 +27,8 @@ export default function TicketDetail() {
   const [messageText, setMessageText] = useState("");
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [messages, setMessages] = useState<TicketMessageType[]>([]);
+  const bottomRef = useRef<HTMLDivElement>(null);
 
   const { id } = useParams();
   const queryClient = useQueryClient();
@@ -41,8 +43,6 @@ export default function TicketDetail() {
     queryFn: getAllAccounts,
     queryKey: ["accounts"],
   });
-
-  const [messages, setMessages] = useState<TicketMessageType[]>([]);
 
   useEffect(() => {
     if (ticket?.TicketMessages) {
@@ -59,6 +59,10 @@ export default function TicketDetail() {
       socket.off("new_message");
     };
   }, []);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   const { mutate: onCreateTicketMessage } = useMutation({
     mutationFn: async (values: CreateTicketMessageType) =>
@@ -210,6 +214,7 @@ export default function TicketDetail() {
             --- No Messages Found ---
           </p>
         )}
+        <div ref={bottomRef} />
       </div>
 
       {/* Footer */}

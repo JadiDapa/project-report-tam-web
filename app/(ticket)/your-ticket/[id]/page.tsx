@@ -7,7 +7,7 @@ import {
   getTicketById,
   updateTicket,
 } from "@/lib/networks/ticket";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   CreateTicketMessageType,
   TicketMessageType,
@@ -27,6 +27,8 @@ export default function TicketDetail() {
   const [messageText, setMessageText] = useState("");
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [messages, setMessages] = useState<TicketMessageType[]>([]);
+  const bottomRef = useRef<HTMLDivElement>(null);
 
   const { id } = useParams();
   const queryClient = useQueryClient();
@@ -42,17 +44,24 @@ export default function TicketDetail() {
     queryKey: ["accounts"],
   });
 
-  const [messages, setMessages] = useState<TicketMessageType[]>([]);
-
   /* ----------------------------- Socket & Data ----------------------------- */
   useEffect(() => {
     if (ticket?.TicketMessages) setMessages(ticket.TicketMessages);
   }, [ticket]);
 
   useEffect(() => {
-    socket.on("new_message", (msg) => setMessages((prev) => [...prev, msg]));
-    return () => socket.off("new_message");
+    socket.on("new_message", (msg) => {
+      setMessages((prev) => [...prev, msg]);
+    });
+
+    return () => {
+      socket.off("new_message");
+    };
   }, []);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   /* ----------------------------- Mutations ----------------------------- */
   const { mutate: onCreateTicketMessage } = useMutation({
@@ -74,7 +83,6 @@ export default function TicketDetail() {
     },
   });
 
-  /* ----------------------------- Handlers ----------------------------- */
   const handleSendMessage = () => {
     if (!messageText.trim() && !selectedImage) return;
 
@@ -206,6 +214,7 @@ export default function TicketDetail() {
             --- No Messages Found ---
           </p>
         )}
+        <div ref={bottomRef} />
       </div>
 
       {/* Image Preview */}

@@ -84,7 +84,7 @@ export default function EvidenceDetailModal({
     },
   });
 
-  const isProjectManager = account?.Role?.Features?.some(
+  const projectManager = account?.Role?.Features?.some(
     (feature) => feature.name === "Manage Project",
   );
 
@@ -151,7 +151,7 @@ export default function EvidenceDetailModal({
                   </p>
                 </div>
 
-                {isProjectManager && (
+                {projectManager && (
                   <div
                     onClick={() => setCreateEvidence(true)}
                     className="bg-primary justify-center rounded-md px-2 py-1"

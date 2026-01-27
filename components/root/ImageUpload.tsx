@@ -43,8 +43,12 @@ export default function UploadTaskEvidence({
   const queryClient = useQueryClient();
   const { account } = useAccount();
 
-  const isProjectManager = account?.Role?.Features?.some(
-    (feature) => feature.name === "Manage Project",
+  const projectExecutor = account?.Role?.Features?.some(
+    (feature) => feature.name === "Execute Project",
+  );
+
+  const projectManager = account?.Role?.Features?.some(
+    (feature) => feature.name === "Execute Project",
   );
 
   const [previewImage, setPreviewImage] = useState<string | null>(null);
@@ -140,7 +144,7 @@ export default function UploadTaskEvidence({
 
   return (
     <div className="space-y-4">
-      {isProjectManager && (
+      {projectExecutor && (
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">Evidence Images</h2>
           <label className="cursor-pointer">
@@ -176,7 +180,7 @@ export default function UploadTaskEvidence({
                 className="h-full w-full object-cover"
                 onClick={() => setPreviewImage(evidence.image as string)}
               />
-              {isProjectManager && (
+              {projectManager && (
                 <button
                   onClick={() => {
                     const confirmed = confirm(
@@ -191,7 +195,7 @@ export default function UploadTaskEvidence({
                   <X className="h-4 w-4 text-red-500" />
                 </button>
               )}
-              {isProjectManager && (
+              {projectManager && (
                 <div className="absolute bottom-0 flex cursor-pointer items-center space-x-2 rounded-full bg-black/40 p-1 px-4">
                   <Checkbox
                     id={`isExport-${evidence.id}`}

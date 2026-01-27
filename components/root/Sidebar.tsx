@@ -60,11 +60,6 @@ const adminLink = [
     url: "/programs",
     Icon: ClipboardList,
   },
-  // {
-  //   name: "Projects",
-  //   url: "/projects",
-  //   Icon: ClipboardList,
-  // },
   {
     name: "Daily Reports",
     url: "/daily-reports",
@@ -75,12 +70,6 @@ const adminLink = [
     url: "/tickets",
     Icon: Ticket,
   },
-  // {
-  //   name: "Evidence Alteration",
-  //   url: "/evidence-alteration",
-  //   Icon: Image,
-  //   public: true,
-  // },
 ];
 
 export default function Sidebar() {
@@ -134,36 +123,38 @@ export default function Sidebar() {
 
         <ScrollArea className="h-[85vh] text-slate-100">
           <Accordion type="single" className="flex flex-col gap-2" collapsible>
-            <p className="text-secondary mt-2 px-5 text-lg font-semibold">
-              User Menu
-            </p>
+            {account?.Role.name !== "Administrator" && (
+              <>
+                <p className="text-secondary mt-2 px-5 text-lg font-semibold">
+                  User Menu
+                </p>
 
-            {userLink.map((item) => {
-              return (
-                <div key={item.url}>
-                  <Link
-                    onClick={closeSidebar}
-                    key={item.url}
-                    href={item.url}
-                    className={cn(
-                      "text-secondary mt-1 flex w-full items-center justify-between rounded-lg px-5 py-2.5 duration-300",
-                      item.url !== "/" && pathname.startsWith(item.url)
-                        ? "bg-secondary text-primary shadow-sm"
-                        : "hover:bg-secondary/50 hover:text-secondary",
-                    )}
-                  >
-                    <div className="flex items-center justify-center gap-5">
-                      <item.Icon strokeWidth={1.8} size={24} />
-                      <div className="text-xl">{item.name}</div>
+                {userLink.map((item) => {
+                  return (
+                    <div key={item.url}>
+                      <Link
+                        onClick={closeSidebar}
+                        key={item.url}
+                        href={item.url}
+                        className={cn(
+                          "text-secondary mt-1 flex w-full items-center justify-between rounded-lg px-5 py-2.5 duration-300",
+                          item.url !== "/" && pathname.startsWith(item.url)
+                            ? "bg-secondary text-primary shadow-sm"
+                            : "hover:bg-secondary/50 hover:text-secondary",
+                        )}
+                      >
+                        <div className="flex items-center justify-center gap-5">
+                          <item.Icon strokeWidth={1.8} size={24} />
+                          <div className="text-xl">{item.name}</div>
+                        </div>
+                      </Link>
                     </div>
-                  </Link>
-                </div>
-              );
-            })}
+                  );
+                })}
+              </>
+            )}
             {account?.Role.name === "Administrator" && (
               <>
-                <Separator className="bg-secondary" />
-
                 <p className="text-secondary mt-2 px-5 text-lg font-semibold">
                   Admin Menu
                 </p>
