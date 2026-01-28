@@ -41,7 +41,7 @@ export default function Hero() {
             {/* Action buttons */}
             <div className="flex justify-center gap-4 lg:justify-normal lg:gap-6">
               <a
-                href="https://expo.dev/artifacts/eas/tFBf8QCRCH5GfRD9T2x9fq.apk"
+                href="https://github.com/JadiDapa/project-report-tam/releases/download/v.1.0.0/taruna-anugerah-mandiri.apk"
                 download
                 className="bg-primary group border-primary hover:text-primary flex w-36 items-center justify-center gap-3 rounded-full border-2 py-2 text-white transition-all hover:bg-transparent lg:w-44"
               >

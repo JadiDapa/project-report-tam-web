@@ -44,7 +44,7 @@ export default function Navbar() {
           </Link>
         ))}
         <a
-          href="https://expo.dev/artifacts/eas/tFBf8QCRCH5GfRD9T2x9fq.apk"
+          href="https://github.com/JadiDapa/project-report-tam/releases/download/v.1.0.0/taruna-anugerah-mandiri.apk"
           className="font-medium text-gray-600 transition-colors hover:text-gray-900"
         >
           Download App
